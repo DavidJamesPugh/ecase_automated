@@ -11,7 +11,7 @@ nbformat==4.4.0
 numpy==1.16.1
 openpyxl==2.5.4
 pandas==0.24.1
-Pillow==5.4.1
+Pillow==6.2.0
 plotly==3.4.2
 python-dateutil==2.8.0
 pytz==2018.7
