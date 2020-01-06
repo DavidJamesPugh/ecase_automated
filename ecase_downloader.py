@@ -6,11 +6,12 @@ Tests in tests.py TestingEcaseReportsAvailable for if the reports exist
 """
 
 import datetime
+import os
 import time
 from urllib.request import urlretrieve
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
@@ -52,7 +53,7 @@ def ecase_data(driver):
 
     driver.implicitly_wait(10)
     buttons = driver.find_elements_by_id('generate')
-    
+
     for button in buttons:
         button.click()
         time.sleep(2)
@@ -66,8 +67,13 @@ def ecase_pi_risk(driver):
     # Download the csv with all customer codes
     driver.get('https://sn.healthmetrics.co.nz/main.php?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('pir_code')
-    driver.implicitly_wait(10)
-    driver.find_element_by_id('generate').click()
+    while not os.path.isfile(rf'{constants.DOWNLOADS_DIR}\pir_code.csv'):
+        try:
+            driver.find_element_by_id('generate').click()
+        except NoSuchElementException:
+            continue
+        except ElementClickInterceptedException:
+            continue
 
 
 def care_plan_audits_download(driver, wing):

@@ -12,7 +12,6 @@ import pandas as pd
 from openpyxl import load_workbook, Workbook
 from openpyxl.drawing.image import Image
 from openpyxl.styles import Font, Alignment
-from openpyxl.worksheet.properties import PageSetupProperties
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
@@ -43,13 +42,18 @@ def pi_risk_levels(driver):
     creates a file with all resident's PI risk factor
     """
 
-    count = 1
     codes_book = Workbook()
     codes_sheet = codes_book.active
     header = ['First Name', 'Last Name', 'Wing', 'Room', 'PI Risk', 'PI Desc']
-    cust_codes = []
     widths = [20, 15, 20, 7, 7, 15]
     styles.print_settings(codes_sheet, widths, header)
+    codes_book.save(rf'{constants.DOWNLOADS_DIR}\PIRiskLevels.xlsx')
+    codes_book.close()
+
+    count = 1
+    cust_codes = []
+    codes_book = load_workbook(rf'{constants.DOWNLOADS_DIR}\PIRiskLevels.xlsx')
+    codes_sheet = codes_book.active
 
     with open(rf'{constants.DOWNLOADS_DIR}\pir_code.csv') as codes:
         codes_data = csv.reader(codes, delimiter=',')
@@ -96,9 +100,7 @@ def pi_risk_levels(driver):
                 codes_sheet[f'F{count}'] = 'Not Done'
                 codes_book.save(rf'{constants.DOWNLOADS_DIR}\PIRiskLevels.xlsx')
 
-        codes_book.save(rf'{constants.DOWNLOADS_DIR}\PIRiskLevels.xlsx')
         codes_book.close()
-        driver.close()
 
     os.remove(rf'{constants.DOWNLOADS_DIR}\pir_code.csv')
     os.startfile(rf'{constants.DOWNLOADS_DIR}\PIRiskLevels.xlsx')
@@ -391,7 +393,7 @@ def create_front_sheet(village=False):
 
             elif row[9] == 'Second Contact':
                 for cell in contact_info_index[9:18]:
-                    front_sheet[cell] = row[contact_info_index.index(cell)]
+                    front_sheet[cell] = row[contact_info_index.index(cell)-9]
 
             elif row[9] == 'EPA Welfare':
                 front_sheet[epoa_info_index[0]] = row[0]
@@ -510,8 +512,6 @@ def create_door_label():
     with open(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv', newline='') as basic_info:
         basic_info_data = csv.reader(basic_info, delimiter=',', quotechar='"')
         basic_data = list(basic_info_data)
-        basic_data[1][0] = basic_data[1][0] + ' ' + basic_data[1][1]
-        del basic_data[1][1]
 
     namecard_font = Font(size=36, bold=True, name='Arial')
 
@@ -548,11 +548,7 @@ def create_door_label():
     styles.full_border(door_sheet, 'B21:J38', border=['double'])
 
     door_sheet.print_area = 'A5:K39'
-    dsprops = door_sheet.sheet_properties
-    dsprops.pageSetUpPr = PageSetupProperties(autoPageBreaks=False,
-                                              fitToPage=True)
-    door_sheet.print_options.horizontalCentered = True
-    door_sheet.print_options.verticalCentered = True
+    styles.print_settings(door_sheet, landscape=False)
     sheet_book.save(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
     sheet_book.close()
 
@@ -590,7 +586,7 @@ def create_label_list():
 
     styles.print_settings(label_sheet, widths=[14.714, 8.88571, 8.88571,
                                                13.286, 11, 14.714, 8.88571,
-                                               8.88571, 13.286])
+                                               8.88571, 13.286], landscape=False)
 
     respite = False
 

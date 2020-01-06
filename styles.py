@@ -39,7 +39,7 @@ def print_settings(sheet, widths=None, header=None, one_page=True, landscape=Tru
         header = []
 
     for i in range(len(header)):
-        sheet.column_dimensions[f'{alpha[i]}1'] = header[i]
+        sheet[f'{alpha[i]}1'] = header[i]
 
     main_props = sheet.sheet_properties
     sheet.print_options.horizontalCentered = True
@@ -47,8 +47,10 @@ def print_settings(sheet, widths=None, header=None, one_page=True, landscape=Tru
 
     if one_page:
         main_props.pageSetUpPr = PageSetupProperties(autoPageBreaks=False, fitToPage=True)
+        sheet.print_options.horizontalCentered = True
+        sheet.print_options.verticalCentered = True
     else:
-        main_props.pageSetUpPr = PageSetupProperties(autoPageBreaks=False, fitToPage=True)
+        main_props.pageSetUpPr = PageSetupProperties(autoPageBreaks=False)
         sheet.page_setup.fitToHeight = False
         sheet.page_setup.fitToWidth = True
 

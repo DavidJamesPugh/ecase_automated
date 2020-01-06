@@ -4,6 +4,7 @@
 
 import csv
 import os
+from datetime import datetime
 
 import pandas as pd
 from openpyxl import Workbook, load_workbook
@@ -70,6 +71,7 @@ def training_lists():
     training_file.save()
     training_file.close()
 
+    os.startfile(rf'{constants.MAIN_DATA_DIR}\Training\Training to be booked.xlsx')
 
 def birthday_list():
     """
@@ -81,6 +83,7 @@ def birthday_list():
     birthdays_raw = []
     birthdays_file = Workbook()
     birthdays_sheet = birthdays_file.active
+    c_month = datetime.now().month
     headers = ['Code', 'Name', 'Hours', 'Role', 'Start Date',
                'Birthdate', 'Area', 'Day', 'Month', 'Year']
     alpha = []
@@ -95,7 +98,9 @@ def birthday_list():
                 month = int(str.split(row[5], sep='/')[1])
                 day = int(str.split(row[5], sep='/')[0])
                 year = int(str.split(row[5], sep='/')[2])
-                birthdays_raw.append([row, day, month, year])
+                if month >= c_month:
+                    if month <= c_month+2:
+                        birthdays_raw.append([row, day, month, year])
 
             except ValueError:
                 month = 'Missing'
@@ -130,12 +135,12 @@ def birthday_list():
                                  'Day', 'Month'], index=False)
     writer.save()
     writer.close()
-    birthdays_file.save(rf'{constants.STAFF_DIR}\StaffBirthdays.xlsx')
-    birthdays_file.close()
-    file = load_workbook(rf'{constants.STAFF_DIR}\StaffBirthdays.xlsx')
-    birthday_sheet = file.active
+    birthdays_file = load_workbook(rf'{constants.STAFF_DIR}\StaffBirthdays.xlsx')
+    birthday_sheet = birthdays_file.active
     widths = [5.6, 33.5, 29, 27, 11, 11, 20, 5, 7.5, 5]
 
-    styles.print_settings(birthday_sheet, widths, 'Sheet')
+    styles.print_settings(birthday_sheet, widths)
+    birthdays_file.save(rf'{constants.STAFF_DIR}\StaffBirthdays.xlsx')
+    birthdays_file.close()
 
     os.startfile(rf'{constants.STAFF_DIR}\StaffBirthdays.xlsx')

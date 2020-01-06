@@ -36,7 +36,7 @@ def care_level_list():
 
     mcf_care_level_pd = pd.read_csv(mcf_care_level)
     mcf_care_level_pd = mcf_care_level_pd.sort_values(
-        by=['WingDescription', 'RoomDescription'],  ascending=True)
+        by=['WingDescription', 'RoomDescription'], ascending=True)
 
     mcf_care_level_file = pd.ExcelWriter(rf'{constants.DOWNLOADS_DIR}\Care Levels\MCF - CareLevels.xlsx')
     for area in areas[0:7]:
@@ -589,45 +589,47 @@ def careplan_import(wing):
     Places in each area’s sheet, as well as in the sheet for All areas
     """
 
-    careplans_raw = []
-    careplans_headers = ['Room', 'Surname', 'Firstname', 'Date Created',
-                         'Next Due', 'Careplan Name', 'Published Status', 'Author',
-                         'Role', 'Comment/Corrective']
-
-    alpha = []
-    for letter in range(65, 91):
-        alpha.append(chr(letter))
-
-    resident_count = 2
+    resident_count = 0
     time.sleep(1)
 
     careplans_file = load_workbook(rf'{constants.OUTPUTS_DIR}\Care Plans\eCaseCareplans.xlsx')
     ecase_wing = careplans_file[wing]
     ecase_all = careplans_file['All']
 
-    with open(rf'{constants.DOWNLOADS_DIR}\cp_Care Plan Audit.csv', newline='') as careplans:
-        careplans_data = csv.reader(careplans, delimiter=',', quotechar='"')
-        for row in careplans_data:
-            careplans_raw += [row]
+    try:
+        with open(rf'{constants.DOWNLOADS_DIR}\cp_Care Plan Audit.csv', newline='') as careplans:
+            careplans_data = csv.reader(careplans, delimiter=',', quotechar='"')
+            for row in careplans_data:
+                resident_count += 1
+                ecase_wing.append([row[0], row[2], row[1], row[3],
+                                   f'=IF(D{resident_count}+180=180,"",D{resident_count}+180)',
+                                   row[4], row[5], row[6], row[7]])
+                ecase_all.append([row[0], row[2], row[1], row[3],
+                                  f'=IF(D{resident_count}+180=180,"",D{resident_count}+180)',
+                                  row[4], row[5], row[6], row[7]])
 
-    for i in range(10):
-        ecase_wing[f'{alpha[i]}1'] = careplans_headers[i]
-        ecase_all[f'{alpha[i]}1'] = careplans_headers[i]
+    except FileNotFoundError:
+        pass
 
-    for row in careplans_raw[1:len(careplans_raw)]:
-        resident_count += 1
-        ecase_wing.append([row[0], row[2], row[1], row[3],
-                           f'=IF(D{resident_count}+180=180,"",D{resident_count}+180)',
-                           row[4], row[5], row[6], row[7]])
-        ecase_all.append([row[0], row[2], row[1], row[3],
-                          f'=IF(D{resident_count}+180=180,"",D{resident_count}+180)',
-                          row[4], row[5], row[6], row[7]])
+    ecase_wing['E1'] = 'Next Due'
+    ecase_all['E1'] = 'Next Due'
 
     careplans_file.save(rf'{constants.OUTPUTS_DIR}\Care Plans\eCaseCareplans.xlsx')
+
+    xl = pd.ExcelFile(rf'{constants.OUTPUTS_DIR}\Care Plans\eCaseCareplans.xlsx')
+    df = xl.parse(wing)
+    df = df.sort_values(by=['Room', 'CarePlanName'])
+    writer = pd.ExcelWriter(
+        rf'{constants.MAIN_DATA_DIR}\Audits\CQR audits\{wing} Care Plans.xlsx')
+    df.to_excel(writer, sheet_name=wing,
+                columns=['Room', 'LastName', 'FirstName', 'DateCreated',
+                         'Next Due', 'CarePlanName', 'CarePlanStatus', 'Author',
+                         'Role'], index=False)
+    writer.save()
+
     careplans_file.close()
 
     os.remove(rf'{constants.DOWNLOADS_DIR}\cp_Care Plan Audit.csv')
-    #  into a new csv file that will tally up everything, and print out a word doc?
 
 
 def careplans_missing_audits():
@@ -663,10 +665,12 @@ def careplans_missing_audits():
 
         reader = pd.read_excel(rf'{constants.MAIN_DATA_DIR}\Audits\CQR audits\{file}',
                                index_col=0)
-        for i in range(0, 31):
+        for room in range(0, 31):
             try:
-                index = reader.index.unique()[i]
-                careplans = reader.loc[[index], ['Careplan Name']]
+                # Index creates a list of all the unique index values in reader
+                # Some rooms may be
+                index = reader.index.unique()[room]
+                careplans = reader.loc[[index], ['CarePlanName']]
 
                 for audit in audits_required:
                     if audit not in careplans.values:

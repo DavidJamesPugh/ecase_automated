@@ -7,8 +7,8 @@ import os
 import re
 import time
 import tkinter
-from openpyxl import Workbook
-import pandas as pd
+
+from selenium.common.exceptions import NoSuchElementException
 
 import constants
 import ecase_data_import
@@ -100,26 +100,17 @@ def ecase_care_plans():
              'Stirling', 'Iona', 'Balmoral', 'Braemar']
 
     care_plans = rf'{constants.OUTPUTS_DIR}\Care Plans\eCaseCareplans.xlsx'
-    all_cols = ['Room', 'Surname', 'Firstname', 'Date Created',
-                'Next Due', 'Careplan Name',
-                'Published Status', 'Author',
-                'Role', 'Comment/Corrective']
 
     if file_available(care_plans):
         ecase_driver = ecase_downloader.ecase_login()
         ecase_data_import.care_plans_setup()
 
         for wing in wings:
-            ecase_downloader.care_plan_audits_download(ecase_driver, wing)
-            ecase_data_import.careplan_import(wing)
-
-            xl = pd.ExcelFile(care_plans)
-            df = xl.parse(wing)
-            df = df.sort_values(by=["Room", "Careplan Name"])
-            writer = pd.ExcelWriter(
-                rf'{constants.MAIN_DATA_DIR}\Audits\CQR audits\{wing} Care Plans.xlsx')
-            df.to_excel(writer, sheet_name=wing, columns=all_cols, index=False)
-            writer.save()
+            try:
+                ecase_downloader.care_plan_audits_download(ecase_driver, wing)
+                ecase_data_import.careplan_import(wing)
+            except NoSuchElementException:
+                print(f'{wing} care plans could not be downloaded')
 
         ecase_data_import.careplans_missing_audits()
         ecase_driver.quit()
@@ -150,14 +141,22 @@ def ecase_data_download():
 
     if file_available(ecase_data):
         ecase_driver = ecase_downloader.ecase_login()
-        ecase_downloader.ecase_data(ecase_driver)
-        ecase_driver.quit()
-        ecase_data_import.ecase_data_import()
+        try:
+            ecase_downloader.ecase_data(ecase_driver)
+        except NoSuchElementException:
+            print("Data report can't be downloaded")
 
+        ecase_driver.quit()
+
+        try:
+            ecase_data_import.ecase_data_import()
+        except FileNotFoundError:
+            pass
 
 # #####################################
 # ######################Printing Files#
 # #####################################
+
 
 def printing_files():
     """
@@ -303,11 +302,8 @@ def pi_risks():
     to be manually generated and cleaned, as the natural pir_code.csv from
     eCase has too many duplicates
     """
-
     ecase_driver = ecase_downloader.ecase_login()
     ecase_downloader.ecase_pi_risk(ecase_driver)
-    while not file_available(rf'{constants.DOWNLOADS_DIR}\pir_code.csv'):
-        time.sleep(2)
     printing_documents.pi_risk_levels(ecase_driver)
     ecase_driver.quit()
 
