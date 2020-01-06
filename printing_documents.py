@@ -65,8 +65,7 @@ def pi_risk_levels(driver):
                     continue
                 count += 1
                 driver.get(
-                    f'https://sn.healthmetrics.co.nz/main.php?action=assessment&accessmodule=assessment&customerCode='
-                    f'{row[0]}')
+                    f'{constants.ECASE_URL}?action=assessment&accessmodule=assessment&customerCode={row[0]}')
                 driver.implicitly_wait(10)
                 driver.find_element_by_link_text('Expand All').click()
                 driver.implicitly_wait(10)

@@ -30,7 +30,7 @@ def ecase_login():
     options = webdriver.ChromeOptions()
     options.add_experimental_option('prefs', prefs)
     driver = webdriver.Chrome(chrome_options=options)
-    driver.get('https://sn.healthmetrics.co.nz/main.php?sx=0&')
+    driver.get(f'{constants.ECASE_URL}')
 
     user_name = driver.find_element_by_id('mod_login_username')
     user_password = driver.find_element_by_id('mod_login_password')
@@ -48,7 +48,7 @@ def ecase_data(driver):
         Navigates to the report screen,
         and downloads all reports with the keyword ‘data’
     """
-    driver.get('https://sn.healthmetrics.co.nz/main.php?action=reportGenerator&active=1')
+    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('data')
 
     driver.implicitly_wait(10)
@@ -65,7 +65,7 @@ def ecase_pi_risk(driver):
     Downloads the pir_code from ecase reports that contains the customer codes for each resident
     """
     # Download the csv with all customer codes
-    driver.get('https://sn.healthmetrics.co.nz/main.php?action=reportGenerator&active=1')
+    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('pir_code')
     while not os.path.isfile(rf'{constants.DOWNLOADS_DIR}\pir_code.csv'):
         try:
@@ -88,7 +88,7 @@ def care_plan_audits_download(driver, wing):
         is then used to create a file with a sheet for each area
         and their care plan status.
     """
-    driver.get('https://sn.healthmetrics.co.nz/main.php?action=reportGenerator&active=1')
+    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('cp_')
     driver.implicitly_wait(10)
     driver.find_element_by_id('generate').click()
@@ -107,7 +107,7 @@ def main_bowel_report(driver, wing: str, age: int):
     :param age: number of months in the past
     :return:
     """
-    driver.get('https://sn.healthmetrics.co.nz/main.php?action=reportGenerator&active=1')
+    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('bowel_report')
     driver.implicitly_wait(10)
 
@@ -155,7 +155,7 @@ def resident_image(driver, nhi):
         Gets the resident’s image and saves it in the
         eCase\Downloads folder with the NHI as the name
     """
-    driver.get('https://sn.healthmetrics.co.nz/main.php?action=search')
+    driver.get(f'{constants.ECASE_URL}?action=search')
     nhi = nhi.upper()
     nhi_field = driver.find_element_by_name('txtNHINumber')
     nhi_field.send_keys(nhi)
@@ -178,7 +178,7 @@ def preferred_name(driver, nhi):
         and saves it in a text file in the eCase\Downloads folder,
         named p_name.txt
     """
-    driver.get('https://sn.healthmetrics.co.nz/main.php?action=search')
+    driver.get(f'{constants.ECASE_URL}?action=search')
     nhi = nhi.upper()
     nhi_field = driver.find_element_by_name('txtNHINumber')
     nhi_field.send_keys(nhi)
@@ -195,7 +195,7 @@ def resident_contacts(driver, nhi):
         Downloads all reports starting with the name ‘fs’.
         Will be Resident info, and Resident Contact’s info
     """
-    driver.get('https://sn.healthmetrics.co.nz/main.php?action=reportGenerator&active=1')
+    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('fs_')
     driver.implicitly_wait(2)
     buttons = driver.find_elements_by_id('generate')
@@ -212,7 +212,7 @@ def doctor_numbers_download(driver):
         Downloads the report with ‘doctor’ in the name.
         Report has a list of residents and who their doctor is.
     """
-    driver.get('https://sn.healthmetrics.co.nz/main.php?action=reportGenerator&active=1')
+    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('doctor_Numbers')
 
     driver.implicitly_wait(10)
@@ -224,7 +224,7 @@ def ecase_birthdays(driver):
         Downloads the report with ‘birthdayList’ in the name.
         Report has the list of resident birth dates
     """
-    driver.get('https://sn.healthmetrics.co.nz/main.php?action=reportGenerator&active=1')
+    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('birthdayList_MCF')
 
     driver.implicitly_wait(10)
@@ -237,7 +237,7 @@ def care_level_csv(driver):
         Downloads the report ‘pod_MCF’, and ‘pod_Residents’,
         both with the level of care for each resident
     """
-    driver.get('https://sn.healthmetrics.co.nz/main.php?action=reportGenerator&active=1')
+    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('pod_')
     driver.implicitly_wait(10)
     buttons = driver.find_elements_by_id('generate')
@@ -253,7 +253,7 @@ def ecase_movements(driver):
         Handles the selecting of dates within eCase date selector,
         selects from 1 July 2018, till the end of the current month.
     """
-    driver.get('https://sn.healthmetrics.co.nz/main.php?action=reportGenerator&active=1')
+    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('temp_movements')
 
     month_spec = downloader_support_functions.date_selector(datetime.datetime.now().month,

@@ -13,3 +13,4 @@ STAFF_DIR = r'\\SAV-FP01\data$\Shared Data\Care Manager\Quality Data\Data Techni
 
 ECASE_USERNAME = 'dpugh'
 ECASE_PASSWORD = 'sav2018'
+ECASE_URL = 'https://sn.healthmetrics.co.nz/main.php'
