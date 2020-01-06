@@ -263,68 +263,85 @@ def create_front_sheet(village=False, no_print=False):
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-    sheet_book = Workbook()
-    front_sheet = sheet_book.active
+    try:
+        sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
+        front_sheet = sheet_book.active
 
-    #  Column widths
-    styles.print_settings(front_sheet, widths=[0.15, 17.0, .15, 23.0, 4.15,
-                                               4.15, 16.0, .15, 28.0])
+    except FileNotFoundError:
+        sheet_book = Workbook()
+        front_sheet = sheet_book.active
 
-    front_sheet['B1'].font = main_heading_font
+        #  Column widths
+        styles.print_settings(front_sheet, widths=[0.15, 17.0, .15, 23.0, 4.15,
+                                                   4.15, 16.0, .15, 28.0])
 
-    #  sheet headings writing to sheet & setting text styles
-    for heading in sheet_headings:
-        front_sheet[sheet_headings[heading]] = heading
-        front_sheet[sheet_headings[heading]].font = headings_font
+        front_sheet['B1'].font = main_heading_font
 
-    #  sheet titles writing to sheet & setting text style
-    for title in sheet_titles:
-        front_sheet[sheet_titles[title]] = title
-        front_sheet[sheet_titles[title]].font = sheet_titles_font
+        #  sheet headings writing to sheet & setting text styles
+        for heading in sheet_headings:
+            front_sheet[sheet_headings[heading]] = heading
+            front_sheet[sheet_headings[heading]].font = headings_font
 
-    # Writing the basic info headers into the file
-    for info in basic_info_fields:
-        front_sheet[basic_info_fields[info]] = info
+        #  sheet titles writing to sheet & setting text style
+        for title in sheet_titles:
+            front_sheet[sheet_titles[title]] = title
+            front_sheet[sheet_titles[title]].font = sheet_titles_font
 
-    #  sheet image writing to sheet & positioning
-    logo = Image(r'images\SAVLandscape.jpg')
-    logo.anchor = 'A1'
-    logo.width = 250
-    logo.height = 40
-    front_sheet.add_image(logo)
-    sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
+        # Writing the basic info headers into the file
+        for info in basic_info_fields:
+            front_sheet[basic_info_fields[info]] = info
 
-    #  Setting text borders for whole sheet
-    styles.full_border(front_sheet, 'D6')
+        #  EPOA Details writing to sheet
+        for epoa in epoa_info_fields:
+            front_sheet[epoa] = epoa_info_fields[epoa]
 
-    styles.full_border(front_sheet, 'D8:D11')
-    styles.full_border(front_sheet, 'D12:D17')
-    styles.full_border(front_sheet, 'I10:I11')
-    styles.full_border(front_sheet, 'I13:I17')
+        #  Contact info writing to sheet# # #
+        for contact in contact_info_fields:
+            front_sheet[contact] = contact_info_fields[contact]
 
-    styles.full_border(front_sheet, 'D21')
-    styles.full_border(front_sheet, 'D23:D26')
-    styles.full_border(front_sheet, 'I21')
-    styles.full_border(front_sheet, 'I23:I26')
+        #  Funeral director info writing to sheet
+        for funeral_info in funeral_info_fields:
+            front_sheet[funeral_info] = funeral_info_fields[funeral_info]
 
-    styles.full_border(front_sheet, 'D31')
-    styles.full_border(front_sheet, 'D33')
-    styles.full_border(front_sheet, 'D35:D38')
-    styles.full_border(front_sheet, 'D40:D43')
-    styles.full_border(front_sheet, 'I31')
-    styles.full_border(front_sheet, 'I33')
-    styles.full_border(front_sheet, 'I35:I38')
-    styles.full_border(front_sheet, 'I40:I43')
+        #  sheet image writing to sheet & positioning
+        logo = Image(r'images\SAVLandscape.jpg')
+        logo.anchor = 'A1'
+        logo.width = 250
+        logo.height = 40
+        front_sheet.add_image(logo)
+        sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
 
-    styles.full_border(front_sheet, 'D47:D48')
-    styles.full_border(front_sheet, 'I47')
+        #  Setting text borders for whole sheet
+        styles.full_border(front_sheet, 'D6')
 
-    styles.full_border(front_sheet, 'D51')
-    styles.full_border(front_sheet, 'I51')
-    styles.full_border(front_sheet, 'D53:D55')
-    styles.full_border(front_sheet, 'I53:I55')
-    styles.full_border(front_sheet, 'D57:D60')
-    styles.full_border(front_sheet, 'I57:I60')
+        styles.full_border(front_sheet, 'D8:D11')
+        styles.full_border(front_sheet, 'D12:D17')
+        styles.full_border(front_sheet, 'I10:I11')
+        styles.full_border(front_sheet, 'I13:I17')
+
+        styles.full_border(front_sheet, 'D21')
+        styles.full_border(front_sheet, 'D23:D26')
+        styles.full_border(front_sheet, 'I21')
+        styles.full_border(front_sheet, 'I23:I26')
+
+        styles.full_border(front_sheet, 'D31')
+        styles.full_border(front_sheet, 'D33')
+        styles.full_border(front_sheet, 'D35:D38')
+        styles.full_border(front_sheet, 'D40:D43')
+        styles.full_border(front_sheet, 'I31')
+        styles.full_border(front_sheet, 'I33')
+        styles.full_border(front_sheet, 'I35:I38')
+        styles.full_border(front_sheet, 'I40:I43')
+
+        styles.full_border(front_sheet, 'D47:D48')
+        styles.full_border(front_sheet, 'I47')
+
+        styles.full_border(front_sheet, 'D51')
+        styles.full_border(front_sheet, 'I51')
+        styles.full_border(front_sheet, 'D53:D55')
+        styles.full_border(front_sheet, 'I53:I55')
+        styles.full_border(front_sheet, 'D57:D60')
+        styles.full_border(front_sheet, 'I57:I60')
 
     respite = False
 
@@ -370,18 +387,6 @@ def create_front_sheet(village=False, no_print=False):
             profile.height = 140
             front_sheet.add_image(profile)
             sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
-
-    #  EPOA Details writing to sheet
-    for epoa in epoa_info_fields:
-        front_sheet[epoa] = epoa_info_fields[epoa]
-
-    #  Contact info writing to sheet# # # 
-    for contact in contact_info_fields:
-        front_sheet[contact] = contact_info_fields[contact]
-
-    #  Funeral director info writing to sheet
-    for funeral_info in funeral_info_fields:
-        front_sheet[funeral_info] = funeral_info_fields[funeral_info]
 
     with open(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv', newline='') as contact_info:
         contact_info_data = csv.reader(contact_info, delimiter=',', quotechar='"')
@@ -476,7 +481,6 @@ def create_front_sheet(village=False, no_print=False):
 
     os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
     os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
-
     if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
         os.remove(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
 
@@ -486,7 +490,7 @@ def create_front_sheet(village=False, no_print=False):
             os.remove(rf'{constants.DOWNLOADS_DIR}\{photoname}')
 
 
-def create_door_label():
+def create_door_label(no_print=False):
     """
         Takes the fs_Res and fs_Con reports from eCase,
         and prints a formatted Door Label to place on the front
@@ -552,13 +556,14 @@ def create_door_label():
     sheet_book.save(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
     sheet_book.close()
 
-    os.startfile(rf'{constants.OUTPUTS_DIR}\door_label.xlsx', 'print')
+    if not no_print:
+        os.startfile(rf'{constants.OUTPUTS_DIR}\door_label.xlsx', 'print')
 
-    os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
-    os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
     if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
         os.remove(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
 
+    os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
+    os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
     for file in os.listdir(rf'{constants.OUTPUTS_DIR}'):
         if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
             photoname = file

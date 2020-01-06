@@ -33,9 +33,6 @@ class TestingFrontSheet(unittest.TestCase):
         ecase_downloader.resident_contacts(cls.driver, nhi)
         cls.driver.quit()
 
-        cls.front_sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
-        cls.front_sheet = cls.front_sheet_book['Sheet']
-
         with open(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv') as data:
             cls.res_data = csv.reader(data, delimiter=',')
             cls.res_data = list(cls.res_data)[1]
@@ -45,6 +42,8 @@ class TestingFrontSheet(unittest.TestCase):
             cls.con_data = list(cls.con_data)
 
         printing_documents.create_front_sheet(no_print=True)
+        cls.front_sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
+        cls.front_sheet = cls.front_sheet_book['Sheet']
 
     def test_headers_present(self):
         sheet_headings = {'RESIDENTS INFORMATION FRONT SHEET': 'B4',
