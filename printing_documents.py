@@ -181,7 +181,7 @@ def temp_movements_print():
     os.remove(rf'{constants.DOWNLOADS_DIR}\temp_movements.csv')
 
 
-def create_front_sheet(village=False):
+def create_front_sheet(village=False, no_print=False):
     """
         Takes the fs_Res and fs_Con reports from eCase,
         and produces a formatted front sheet for use in admission files.
@@ -207,20 +207,20 @@ def create_front_sheet(village=False):
 
     basic_info_fields = {'Location at SAV': 'B6', 'Title': 'B8',
                          'Surname': 'B9', 'Forenames': 'B10',
-                         'Preferred Name': 'B11', 'date of Birth': 'B12',
+                         'Preferred Name': 'B11', 'Date of Birth': 'B12',
                          'Place of Birth': 'B13', 'Religion': 'B14',
                          'Gender': 'B15', 'Marital Status': 'B16',
                          'Doctor at SAV': 'G10', 'Telephone No.': 'G11',
-                         'NHI No': 'G13', 'date Admitted': 'G14',
+                         'NHI No': 'G13', 'Date Admitted': 'G14',
                          'Care Level': 'G15', 'Ethnic Group': 'G16'}
 
     #  This is for two contacts
     epoa_info_fields = {'B21': 'Name', 'B23': 'Home Phone',
                         'B24': 'Work Phone', 'B25': 'Mobile Phone',
-                        'B26': 'e-mail',
+                        'B26': 'E-mail',
                         'G21': 'Name', 'G23': 'Home Phone',
                         'G24': 'Work Phone', 'G25': 'Mobile Phone',
-                        'G26': 'e-mail'}
+                        'G26': 'E-mail'}
 
     #  This is for the Primary and secondary contacts
     contact_info_fields = {'B31': 'Name', 'B33': 'Relationship',
@@ -457,19 +457,22 @@ def create_front_sheet(village=False):
     #  Printing out Frontsheet without monthly accounts fields
     front_sheet.print_area = 'B1:I48'
     sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
-    os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
+    if not no_print:
+        os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
 
     #  Printing out Frontsheet with monthly accounts fields
     front_sheet.print_area = 'B1:I60'
     sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
-    os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
+    if not no_print:
+        os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
 
     sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
     sheet_book.close()
 
-    if village is False:
-        # print an extra accounts page if in the MCF
-        os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
+    if not no_print:
+        if village is False:
+            # print an extra accounts page if in the MCF
+            os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
 
     os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
     os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')

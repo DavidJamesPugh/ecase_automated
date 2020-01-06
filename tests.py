@@ -1,16 +1,151 @@
 """
     Unit Tests for the eCase migration package
 """
+import csv
+import os
 import unittest
 
 from openpyxl import load_workbook, Workbook
 from openpyxl.drawing.image import Image
 from selenium import webdriver
-import os
 
-import downloader_support_functions
-import styles
 import constants
+import downloader_support_functions
+import ecase_downloader
+import printing_documents
+import styles
+
+
+class TestingFrontSheet(unittest.TestCase):
+    """
+    Testing the front sheet docs
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        Downloading files and creating frontsheet
+        :return:
+        """
+        nhi = 'PJY2787'
+
+        cls.driver = ecase_downloader.ecase_login()
+        ecase_downloader.resident_contacts(cls.driver, nhi)
+        cls.driver.quit()
+
+        cls.front_sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
+        cls.front_sheet = cls.front_sheet_book['Sheet']
+
+        with open(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv') as data:
+            cls.res_data = csv.reader(data, delimiter=',')
+            cls.res_data = list(cls.res_data)[1]
+
+        with open(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv') as data:
+            cls.con_data = csv.reader(data, delimiter=',')
+            cls.con_data = list(cls.con_data)
+
+        printing_documents.create_front_sheet(no_print=True)
+
+    def test_headers_present(self):
+        sheet_headings = {'RESIDENTS INFORMATION FRONT SHEET': 'B4',
+                          'ENDURING POWER OF ATTORNEY DETAILS': 'B19',
+                          'CONTACTS FOR HEALTH AND WELFARE DECISIONS': 'B29',
+                          'FUNERAL DIRECTOR': 'B46'}
+
+        for header in sheet_headings:
+            self.assertEqual(self.front_sheet[sheet_headings[header]].value,
+                             header)
+
+    def test_titles_present(self):
+        sheet_titles = {'Health and Welfare': 'B20', 'Property': 'G20',
+                        'First Contact': 'B30', 'Second Contact': 'G30',
+                        'Send Monthly SAV Account to': 'B50',
+                        'Send Monthly Trust Account to': 'G50'}
+
+        for title in sheet_titles:
+            self.assertEqual(self.front_sheet[sheet_titles[title]].value,
+                             title)
+
+    def test_basic_info_fields_present(self):
+
+        basic_info_fields = {'Location at SAV': 'B6', 'Title': 'B8',
+                             'Surname': 'B9', 'Forenames': 'B10',
+                             'Preferred Name': 'B11', 'Date of Birth': 'B12',
+                             'Place of Birth': 'B13', 'Religion': 'B14',
+                             'Gender': 'B15', 'Marital Status': 'B16',
+                             'Doctor at SAV': 'G10', 'Telephone No.': 'G11',
+                             'NHI No': 'G13', 'Date Admitted': 'G14',
+                             'Care Level': 'G15', 'Ethnic Group': 'G16'}
+
+        for field in basic_info_fields:
+            self.assertEqual(self.front_sheet[basic_info_fields[field]].value,
+                             field)
+
+    def test_epoa_info_fields_present(self):
+        epoa_info_fields = {'B21': 'Name', 'B23': 'Home Phone',
+                            'B24': 'Work Phone', 'B25': 'Mobile Phone',
+                            'B26': 'E-mail',
+                            'G21': 'Name', 'G23': 'Home Phone',
+                            'G24': 'Work Phone', 'G25': 'Mobile Phone',
+                            'G26': 'E-mail'}
+
+        for field in epoa_info_fields:
+            self.assertEqual(self.front_sheet[field].value,
+                             epoa_info_fields[field])
+
+    def test_contact_info_fields_present(self):
+        contact_info_fields = {'B31': 'Name', 'B33': 'Relationship',
+                               'B35': 'Address', 'B40': 'Home Phone',
+                               'B41': 'Work Phone', 'B42': 'Mobile Phone',
+                               'B43': 'E-mail',
+                               'G31': 'Name', 'G33': 'Relationship',
+                               'G35': 'Address', 'G40': 'Home Phone',
+                               'G41': 'Work Phone', 'G42': 'Mobile Phone',
+                               'G43': 'E-mail'}
+
+        for field in contact_info_fields:
+            self.assertEqual(self.front_sheet[field].value,
+                             contact_info_fields[field])
+
+    def test_funeral_info_fields_present(self):
+        funeral_info_fields = {'B47': 'Company Name', 'B48': 'Phone Number',
+                               'G47': 'Type of Service', 'B51': 'Name',
+                               'B53': 'Address', 'B57': 'Home Phone',
+                               'B58': 'Work Phone', 'B59': 'Mobile Phone',
+                               'B60': 'E-mail',
+                               'G51': 'Name', 'G53': 'Address',
+                               'G57': 'Home Phone', 'G58': 'Work Phone',
+                               'G59': 'Mobile Phone', 'G60': 'E-mail'}
+
+        for field in funeral_info_fields:
+            self.assertEqual(self.front_sheet[field].value,
+                             funeral_info_fields[field])
+
+    def test_res_data_present(self):
+        basic_info_index = ['D6', 'D8', 'D9', 'D10', 'D12', 'D13', 'D14',
+                            'D15', 'D16', 'I10', 'I13', 'I14',
+                            'I15', 'I16']
+
+        for index in range(len(basic_info_index)):
+            if '-' in self.res_data[index] and len(self.res_data[index]) < 11:
+                date = (f'{self.res_data[index][8:10]}/'
+                        f'{self.res_data[index][5:7]}/'
+                        f'{self.res_data[index][0:4]}')
+
+                self.assertEqual(self.front_sheet[basic_info_index[index]].value,
+                                 date)
+
+            else:
+                self.assertEqual(self.front_sheet[basic_info_index[index]].value,
+                                 self.res_data[index])
+
+    @classmethod
+    def tearDownClass(cls):
+        """
+
+        :return:
+        """
+        pass
 
 
 class TestingConstants(unittest.TestCase):

@@ -29,7 +29,7 @@ def ecase_login():
     prefs = {'download.default_directory': rf'{constants.DOWNLOADS_DIR}'}
     options = webdriver.ChromeOptions()
     options.add_experimental_option('prefs', prefs)
-    driver = webdriver.Chrome(chrome_options=options)
+    driver = webdriver.Chrome(options=options)
     driver.get(f'{constants.ECASE_URL}')
 
     user_name = driver.find_element_by_id('mod_login_username')
