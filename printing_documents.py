@@ -190,58 +190,6 @@ def create_front_sheet(village=False, no_print=False):
         This is for the Admission officer and accountants
     """
 
-    #  headings
-    main_heading_font = Font(size=14, bold=True, italic=True, color='000080')
-    headings_font = Font(size=10, bold=True, italic=True, color='008000')
-    sheet_titles_font = Font(size=10, bold=True, underline='single')
-
-    sheet_headings = {'RESIDENTS INFORMATION FRONT SHEET': 'B4',
-                      'ENDURING POWER OF ATTORNEY DETAILS': 'B19',
-                      'CONTACTS FOR HEALTH AND WELFARE DECISIONS': 'B29',
-                      'FUNERAL DIRECTOR': 'B46'}
-
-    sheet_titles = {'Health and Welfare': 'B20', 'Property': 'G20',
-                    'First Contact': 'B30', 'Second Contact': 'G30',
-                    'Send Monthly SAV Account to': 'B50',
-                    'Send Monthly Trust Account to': 'G50'}
-
-    basic_info_fields = {'Location at SAV': 'B6', 'Title': 'B8',
-                         'Surname': 'B9', 'Forenames': 'B10',
-                         'Preferred Name': 'B11', 'Date of Birth': 'B12',
-                         'Place of Birth': 'B13', 'Religion': 'B14',
-                         'Gender': 'B15', 'Marital Status': 'B16',
-                         'Doctor at SAV': 'G10', 'Telephone No.': 'G11',
-                         'NHI No': 'G13', 'Date Admitted': 'G14',
-                         'Care Level': 'G15', 'Ethnic Group': 'G16'}
-
-    #  This is for two contacts
-    epoa_info_fields = {'B21': 'Name', 'B23': 'Home Phone',
-                        'B24': 'Work Phone', 'B25': 'Mobile Phone',
-                        'B26': 'E-mail',
-                        'G21': 'Name', 'G23': 'Home Phone',
-                        'G24': 'Work Phone', 'G25': 'Mobile Phone',
-                        'G26': 'E-mail'}
-
-    #  This is for the Primary and secondary contacts
-    contact_info_fields = {'B31': 'Name', 'B33': 'Relationship',
-                           'B35': 'Address', 'B40': 'Home Phone',
-                           'B41': 'Work Phone', 'B42': 'Mobile Phone',
-                           'B43': 'E-mail',
-                           'G31': 'Name', 'G33': 'Relationship',
-                           'G35': 'Address', 'G40': 'Home Phone',
-                           'G41': 'Work Phone', 'G42': 'Mobile Phone',
-                           'G43': 'E-mail'}
-
-    #  Funeral Director. Additional Monthly SAV and Trust account contact
-    funeral_info_fields = {'B47': 'Company Name', 'B48': 'Phone Number',
-                           'G47': 'Type of Service', 'B51': 'Name',
-                           'B53': 'Address', 'B57': 'Home Phone',
-                           'B58': 'Work Phone', 'B59': 'Mobile Phone',
-                           'B60': 'E-mail',
-                           'G51': 'Name', 'G53': 'Address',
-                           'G57': 'Home Phone', 'G58': 'Work Phone',
-                           'G59': 'Mobile Phone', 'G60': 'E-mail'}
-
     basic_info_index = ['D6', 'D8', 'D9', 'D10', 'D12', 'D13', 'D14',
                         'D15', 'D16', 'I10', 'I13', 'I14',
                         'I15', 'I16']
@@ -268,6 +216,58 @@ def create_front_sheet(village=False, no_print=False):
         front_sheet = sheet_book.active
 
     except FileNotFoundError:
+        #  headings
+        main_heading_font = Font(size=14, bold=True, italic=True, color='000080')
+        headings_font = Font(size=10, bold=True, italic=True, color='008000')
+        sheet_titles_font = Font(size=10, bold=True, underline='single')
+
+        sheet_headings = {'RESIDENTS INFORMATION FRONT SHEET': 'B4',
+                          'ENDURING POWER OF ATTORNEY DETAILS': 'B19',
+                          'CONTACTS FOR HEALTH AND WELFARE DECISIONS': 'B29',
+                          'FUNERAL DIRECTOR': 'B46'}
+
+        sheet_titles = {'Health and Welfare': 'B20', 'Property': 'G20',
+                        'First Contact': 'B30', 'Second Contact': 'G30',
+                        'Send Monthly SAV Account to': 'B50',
+                        'Send Monthly Trust Account to': 'G50'}
+
+        basic_info_fields = {'Location at SAV': 'B6', 'Title': 'B8',
+                             'Surname': 'B9', 'Forenames': 'B10',
+                             'Preferred Name': 'B11', 'Date of Birth': 'B12',
+                             'Place of Birth': 'B13', 'Religion': 'B14',
+                             'Gender': 'B15', 'Marital Status': 'B16',
+                             'Doctor at SAV': 'G10', 'Telephone No.': 'G11',
+                             'NHI No': 'G13', 'Date Admitted': 'G14',
+                             'Care Level': 'G15', 'Ethnic Group': 'G16'}
+
+        #  This is for two contacts
+        epoa_info_fields = {'B21': 'Name', 'B23': 'Home Phone',
+                            'B24': 'Work Phone', 'B25': 'Mobile Phone',
+                            'B26': 'E-mail',
+                            'G21': 'Name', 'G23': 'Home Phone',
+                            'G24': 'Work Phone', 'G25': 'Mobile Phone',
+                            'G26': 'E-mail'}
+
+        #  This is for the Primary and secondary contacts
+        contact_info_fields = {'B31': 'Name', 'B33': 'Relationship',
+                               'B35': 'Address', 'B40': 'Home Phone',
+                               'B41': 'Work Phone', 'B42': 'Mobile Phone',
+                               'B43': 'E-mail',
+                               'G31': 'Name', 'G33': 'Relationship',
+                               'G35': 'Address', 'G40': 'Home Phone',
+                               'G41': 'Work Phone', 'G42': 'Mobile Phone',
+                               'G43': 'E-mail'}
+
+        #  Funeral Director. Additional Monthly SAV and Trust account contact
+        funeral_info_fields = {'B47': 'Company Name', 'B48': 'Phone Number',
+                               'G47': 'Type of Service', 'B51': 'Name',
+                               'B53': 'Address', 'B57': 'Home Phone',
+                               'B58': 'Work Phone', 'B59': 'Mobile Phone',
+                               'B60': 'E-mail',
+                               'G51': 'Name', 'G53': 'Address',
+                               'G57': 'Home Phone', 'G58': 'Work Phone',
+                               'G59': 'Mobile Phone', 'G60': 'E-mail'}
+
         sheet_book = Workbook()
         front_sheet = sheet_book.active
 
