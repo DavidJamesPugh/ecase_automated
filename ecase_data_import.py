@@ -29,12 +29,12 @@ def care_level_list():
     mcf_care_level = rf'{constants.DOWNLOADS_DIR}\pod_MCF.csv'
 
     try:
-        checker = load_workbook(rf'{constants.DOWNLOADS_DIR}\Care Levels\MCF - CareLevels.xlsx')
-        checker.save(rf'{constants.DOWNLOADS_DIR}\Care Levels\MCF - CareLevels.xlsx')
+        checker = load_workbook(rf'{constants.OUTPUTS_DIR}\Care Levels\MCF - CareLevels.xlsx')
+        checker.save(rf'{constants.OUTPUTS_DIR}\Care Levels\MCF - CareLevels.xlsx')
         checker.close()
     except FileNotFoundError:
         create_book = Workbook()
-        create_book.save(rf'{constants.DOWNLOADS_DIR}\Care Levels\MCF - CareLevels.xlsx')
+        create_book.save(rf'{constants.OUTPUTS_DIR}\Care Levels\MCF - CareLevels.xlsx')
         create_book.close()
 
     areas = ['HOUSE 1 - Hector', 'HOUSE 2 - Marion Ross',
@@ -47,7 +47,7 @@ def care_level_list():
     mcf_care_level_pd = mcf_care_level_pd.sort_values(
         by=['WingDescription', 'RoomDescription'], ascending=True)
 
-    mcf_care_level_file = pd.ExcelWriter(rf'{constants.DOWNLOADS_DIR}\Care Levels\MCF - CareLevels.xlsx')
+    mcf_care_level_file = pd.ExcelWriter(rf'{constants.OUTPUTS_DIR}\Care Levels\MCF - CareLevels.xlsx')
     for area in areas[0:7]:
         mcf_care_level_pd[mcf_care_level_pd.WingDescription == area].to_excel(
             mcf_care_level_file, sheet_name=f'{area}', index=False)
@@ -59,7 +59,7 @@ def care_level_list():
     rv_care_level_pd = rv_care_level_pd.sort_values(
         by=['Block', 'Unit'], ascending=True)
 
-    rv_care_level_file = pd.ExcelWriter(rf'{constants.DOWNLOADS_DIR}\Care Levels\RLV - CareLevels.xlsx')
+    rv_care_level_file = pd.ExcelWriter(rf'{constants.OUTPUTS_DIR}\Care Levels\RLV - CareLevels.xlsx')
     for area in areas[7:13]:
         rv_care_level_pd[rv_care_level_pd.Block == area].to_excel(
             rv_care_level_file, sheet_name=f'{area}', index=False,
@@ -68,40 +68,42 @@ def care_level_list():
     rv_care_level_file.save()
     rv_care_level_file.close()
 
-    care_level_file = pd.ExcelWriter(rf'{constants.DOWNLOADS_DIR}\Care Levels\S3 Dementia - CareLevels.xlsx')
+    care_level_file = pd.ExcelWriter(rf'{constants.OUTPUTS_DIR}\Care Levels\S3 Dementia - CareLevels.xlsx')
     dementia_pd = mcf_care_level_pd[mcf_care_level_pd.ResidentCareLevel == 'Stage 3 Dementia']
     dementia_pd[dementia_pd.WingDescription != 'HOUSE 5 - Henry Campbell'].to_excel(
         care_level_file, 'Dementia', index=False)
     care_level_file.save()
     care_level_file.close()
 
-    dem_care_level_file = load_workbook(rf'{constants.DOWNLOADS_DIR}\Care Levels\S3 Dementia - CareLevels.xlsx')
-    mcf_care_level_file = load_workbook(rf'{constants.DOWNLOADS_DIR}\Care Levels\MCF - CareLevels.xlsx')
-    rlv_care_level_file = load_workbook(rf'{constants.DOWNLOADS_DIR}\Care Levels\RLV - CareLevels.xlsx')
+    dem_care_level_file = load_workbook(rf'{constants.OUTPUTS_DIR}\Care Levels\S3 Dementia - CareLevels.xlsx')
+    mcf_care_level_file = load_workbook(rf'{constants.OUTPUTS_DIR}\Care Levels\MCF - CareLevels.xlsx')
+    rlv_care_level_file = load_workbook(rf'{constants.OUTPUTS_DIR}\Care Levels\RLV - CareLevels.xlsx')
 
     dementia_sheet = dem_care_level_file['Dementia']
     styles.print_settings(dementia_sheet, [23, 23, 23, 24, 26], landscape=False)
+
+    dem_care_level_file.save(rf'{constants.OUTPUTS_DIR}\Care Levels\S3 Dementia - CareLevels.xlsx')
+    dem_care_level_file.close()
 
     for area in areas[0:7]:
         mcf_care_level_sheet = mcf_care_level_file[area]
         styles.print_settings(mcf_care_level_sheet, [23, 23, 25, 17, 18],
                               landscape=False)
 
+    mcf_care_level_file.save(rf'{constants.OUTPUTS_DIR}\Care Levels\MCF - CareLevels.xlsx')
+    mcf_care_level_file.close()
+
     for area in areas[7:13]:
         rlv_care_level_sheet = rlv_care_level_file[area]
         styles.print_settings(rlv_care_level_sheet, [5, 15, 24.5, 11, 4.9, 17.9],
                               one_page=False, landscape=False)
 
-    mcf_care_level_file.save(rf'{constants.DOWNLOADS_DIR}\Care Levels\MCF - CareLevels.xlsx')
-    mcf_care_level_file.close()
-    rlv_care_level_file.save(rf'{constants.DOWNLOADS_DIR}\Care Levels\RLV - CareLevels.xlsx')
+    rlv_care_level_file.save(rf'{constants.OUTPUTS_DIR}\Care Levels\RLV - CareLevels.xlsx')
     rlv_care_level_file.close()
-    dem_care_level_file.save(rf'{constants.DOWNLOADS_DIR}\Care Levels\S3 Dementia - CareLevels.xlsx')
-    dem_care_level_file.close()
 
-    os.startfile(rf'{constants.DOWNLOADS_DIR}\Care Levels\MCF - CareLevels.xlsx')
-    os.startfile(rf'{constants.DOWNLOADS_DIR}\Care Levels\RLV - CareLevels.xlsx')
-    os.startfile(rf'{constants.DOWNLOADS_DIR}\Care Levels\S3 Dementia - CareLevels.xlsx')
+    os.startfile(rf'{constants.OUTPUTS_DIR}\Care Levels\MCF - CareLevels.xlsx')
+    os.startfile(rf'{constants.OUTPUTS_DIR}\Care Levels\RLV - CareLevels.xlsx')
+    os.startfile(rf'{constants.OUTPUTS_DIR}\Care Levels\S3 Dementia - CareLevels.xlsx')
 
     os.remove(care_level)
     os.remove(mcf_care_level)
