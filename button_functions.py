@@ -177,7 +177,7 @@ def printing_files():
                    command=lambda: front_sheet(nhi_entry, village=True)).grid(column=2)
     tkinter.Button(nhi_window, text="Print Door Label",
                    command=lambda: door_label(nhi_entry)).grid(column=2, pady=5)
-    tkinter.Button(nhi_window, text="Labels List",
+    tkinter.Button(nhi_window, text="Create Labels List",
                    command=lambda: label_list(nhi_entry)).grid(column=2)
     tkinter.Button(nhi_window, text="Quit",
                    command=lambda: nhi_window.destroy()).grid(column=2, pady=10)

@@ -81,7 +81,7 @@ def pi_risk_levels(driver):
                     codes_sheet[f'D{count}'] = row[4]
                     codes_sheet[f'E{count}'] = pi_risk
                     codes_sheet[f'F{count}'] = pi_desc
-                    codes_book.save(rf'{constants.DOWNLOADS_DIR}\PIRiskLevels.xlsx')
+                    codes_book.save(rf'{constants.OUTPUTS_DIR}\PIRiskLevels.xlsx')
 
             except NoSuchElementException:
                 cust_codes += [row[0]]
@@ -91,12 +91,12 @@ def pi_risk_levels(driver):
                 codes_sheet[f'D{count}'] = row[4]
                 codes_sheet[f'E{count}'] = 'Not Done'
                 codes_sheet[f'F{count}'] = 'Not Done'
-                codes_book.save(rf'{constants.DOWNLOADS_DIR}\PIRiskLevels.xlsx')
+                codes_book.save(rf'{constants.OUTPUTS_DIR}\PIRiskLevels.xlsx')
 
         codes_book.close()
 
     os.remove(rf'{constants.DOWNLOADS_DIR}\pir_code.csv')
-    os.startfile(rf'{constants.DOWNLOADS_DIR}\PIRiskLevels.xlsx')
+    os.startfile(rf'{constants.OUTPUTS_DIR}\PIRiskLevels.xlsx')
 
 
 def temp_movements_print():
@@ -282,7 +282,7 @@ def create_front_sheet(village=False):
     logo.width = 250
     logo.height = 40
     front_sheet.add_image(logo)
-    sheet_book.save(rf'{constants.DOWNLOADS_DIR}\front_sheet.xlsx')
+    sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
 
     #  Setting text borders for whole sheet
     styles.full_border(front_sheet, 'D6')
@@ -359,7 +359,7 @@ def create_front_sheet(village=False):
             profile.anchor = 'I2'
             profile.height = 140
             front_sheet.add_image(profile)
-            sheet_book.save(rf'{constants.DOWNLOADS_DIR}\front_sheet.xlsx')
+            sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
 
     #  EPOA Details writing to sheet
     for epoa in epoa_info_fields:

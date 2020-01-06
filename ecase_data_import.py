@@ -28,6 +28,15 @@ def care_level_list():
     care_level = rf'{constants.DOWNLOADS_DIR}\pod_Residents.csv'
     mcf_care_level = rf'{constants.DOWNLOADS_DIR}\pod_MCF.csv'
 
+    try:
+        checker = load_workbook(rf'{constants.DOWNLOADS_DIR}\Care Levels\MCF - CareLevels.xlsx')
+        checker.save(rf'{constants.DOWNLOADS_DIR}\Care Levels\MCF - CareLevels.xlsx')
+        checker.close()
+    except FileNotFoundError:
+        create_book = Workbook()
+        create_book.save(rf'{constants.DOWNLOADS_DIR}\Care Levels\MCF - CareLevels.xlsx')
+        create_book.close()
+
     areas = ['HOUSE 1 - Hector', 'HOUSE 2 - Marion Ross',
              'HOUSE 3 - Bruce', 'HOUSE 4 - Douglas', 'HOUSE 5 - Henry Campbell',
              'Balmoral', 'Iona',
