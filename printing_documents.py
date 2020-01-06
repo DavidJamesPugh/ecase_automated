@@ -202,7 +202,7 @@ def create_front_sheet(village=False):
 
     sheet_titles = {'Health and Welfare': 'B20', 'Property': 'G20',
                     'First Contact': 'B30', 'Second Contact': 'G30',
-                    'Send Monthly SAV Account to': 'G50',
+                    'Send Monthly SAV Account to': 'B50',
                     'Send Monthly Trust Account to': 'G50'}
 
     basic_info_fields = {'Location at SAV': 'B6', 'Title': 'B8',
@@ -215,22 +215,32 @@ def create_front_sheet(village=False):
                          'Care Level': 'G15', 'Ethnic Group': 'G16'}
 
     #  This is for two contacts
-    epoa_info_fields = {'Name': 'G21', 'Home Phone': 'G23',
-                        'Work Phone': 'G24', 'Mobile Phone': 'G25',
-                        'e-mail': 'G26'}
+    epoa_info_fields = {'B21': 'Name', 'B23': 'Home Phone',
+                        'B24': 'Work Phone', 'B25': 'Mobile Phone',
+                        'B26': 'e-mail',
+                        'G21': 'Name', 'G23': 'Home Phone',
+                        'G24': 'Work Phone', 'G25': 'Mobile Phone',
+                        'G26': 'e-mail'}
 
     #  This is for the Primary and secondary contacts
-    contact_info_fields = {'Name': 'G31', 'Relationship': 'G33',
-                           'Address': 'G35', 'Home Phone': 'G40',
-                           'Work Phone': 'G41', 'Mobile Phone': 'G42',
-                           'e-mail': 'B43', 'E-mail': 'G43'}
+    contact_info_fields = {'B31': 'Name', 'B33': 'Relationship',
+                           'B35': 'Address', 'B40': 'Home Phone',
+                           'B41': 'Work Phone', 'B42': 'Mobile Phone',
+                           'B43': 'E-mail',
+                           'G31': 'Name', 'G33': 'Relationship',
+                           'G35': 'Address', 'G40': 'Home Phone',
+                           'G41': 'Work Phone', 'G42': 'Mobile Phone',
+                           'G43': 'E-mail'}
 
     #  Funeral Director. Additional Monthly SAV and Trust account contact
-    funeral_info_fields = {'Company Name': 'B47', 'Phone Number': 'B48',
-                           'Type of Service': 'G47', 'Name': 'G51',
-                           'Address': 'G53', 'Home Phone': 'G57',
-                           'Work Phone': 'G58', 'Mobile Phone': 'G59',
-                           'E-mail': 'G60'}
+    funeral_info_fields = {'B47': 'Company Name', 'B48': 'Phone Number',
+                           'G47': 'Type of Service', 'B51': 'Name',
+                           'B53': 'Address', 'B57': 'Home Phone',
+                           'B58': 'Work Phone', 'B59': 'Mobile Phone',
+                           'B60': 'E-mail',
+                           'G51': 'Name', 'G53': 'Address',
+                           'G57': 'Home Phone', 'G58': 'Work Phone',
+                           'G59': 'Mobile Phone', 'G60': 'E-mail'}
 
     basic_info_index = ['D6', 'D8', 'D9', 'D10', 'D12', 'D13', 'D14',
                         'D15', 'D16', 'I10', 'I13', 'I14',
@@ -363,11 +373,15 @@ def create_front_sheet(village=False):
 
     #  EPOA Details writing to sheet
     for epoa in epoa_info_fields:
-        front_sheet[epoa_info_fields[epoa]] = epoa
+        front_sheet[epoa] = epoa_info_fields[epoa]
 
     #  Contact info writing to sheet# # # 
     for contact in contact_info_fields:
-        front_sheet[contact_info_fields[contact]] = contact
+        front_sheet[contact] = contact_info_fields[contact]
+
+    #  Funeral director info writing to sheet
+    for funeral_info in funeral_info_fields:
+        front_sheet[funeral_info] = funeral_info_fields[funeral_info]
 
     with open(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv', newline='') as contact_info:
         contact_info_data = csv.reader(contact_info, delimiter=',', quotechar='"')
@@ -379,7 +393,7 @@ def create_front_sheet(village=False):
 
             elif row[9] == 'Second Contact':
                 for cell in contact_info_index[9:18]:
-                    front_sheet[cell] = row[contact_info_index.index(cell)-9]
+                    front_sheet[cell] = row[contact_info_index.index(cell) - 9]
 
             elif row[9] == 'EPA Welfare':
                 front_sheet[epoa_info_index[0]] = row[0]
@@ -439,10 +453,6 @@ def create_front_sheet(village=False):
 
                     else:
                         front_sheet['I11'] = 'No Number Present'
-
-    #  Funeral director info writing to sheet
-    for funeral_info in funeral_info_fields:
-        front_sheet[funeral_info_fields[funeral_info]] = funeral_info
 
     #  Printing out Frontsheet without monthly accounts fields
     front_sheet.print_area = 'B1:I48'
@@ -847,7 +857,8 @@ def village_birthdays(only_village=False):
         messageimg.height = 100
         messageimg.width = 200
 
-        village_birthdays_file = load_workbook(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\VillageBirthdays-{date}.xlsx')
+        village_birthdays_file = load_workbook(
+            rf'{constants.OUTPUTS_DIR}\Resident Birthdays\VillageBirthdays-{date}.xlsx')
         resident_birthdays = village_birthdays_file.active
 
         resident_birthdays.add_image(messageimg, 'B2')
