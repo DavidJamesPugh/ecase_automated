@@ -203,8 +203,14 @@ def resident_contacts(driver, nhi):
     for button in buttons:
         button.click()
         driver.find_element_by_id('clause-field-0').send_keys(nhi)
-        driver.find_element_by_id('btn-generate').click()
-        time.sleep(2)
+        while not os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv'):
+            try:
+                driver.find_element_by_id('btn-generate').click()
+                time.sleep(2)
+            except NoSuchElementException:
+                continue
+            except ElementClickInterceptedException:
+                continue
 
 
 def doctor_numbers_download(driver):

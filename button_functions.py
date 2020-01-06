@@ -204,19 +204,9 @@ def front_sheet(entry, village=False):
 
     if file_available(front_sheet_file):
         ecase_driver = ecase_downloader.ecase_login()
-
+        ecase_downloader.resident_contacts(ecase_driver, nhi)
         ecase_downloader.resident_image(ecase_driver, nhi)
         ecase_downloader.preferred_name(ecase_driver, nhi)
-        ecase_downloader.resident_contacts(ecase_driver, nhi)
-
-        # ##This is to explicitly wait until the source files have downloaded.
-        # ##
-        while True:
-            if not os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv'):
-                pass
-            else:
-                break
-
         printing_documents.create_front_sheet(village=village)
         ecase_driver.quit()
 
