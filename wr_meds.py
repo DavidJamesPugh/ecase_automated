@@ -4,6 +4,7 @@ Walls & Roche files from Clinical managers
 """
 
 from datetime import datetime
+import styles
 
 from openpyxl import load_workbook, Workbook
 
@@ -212,10 +213,8 @@ def meds_counts():
                     if type(cell.value) == int and cell.value > 2:
                         new_meds_wr[f'G{row_count}'] = cell.value
                         continue
-    column_count = 0
-    for elem in headers:
-        new_meds_wr[f'{alpha[column_count]}1'] = elem
-        column_count += 1
+
+    styles.print_settings(new_meds_wr, header=headers)
 
     date = datetime.today()
     date = (date.strftime("%d-%m-%y"))

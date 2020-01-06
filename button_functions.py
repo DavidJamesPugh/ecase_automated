@@ -336,12 +336,12 @@ def resident_birthday_list(only_village=False):
     and their birthdates
     """
 
-    res_birthdays = rf'{constants.OUTPUTS_DIR}\ResidentBirthdays.xlsx'
+    res_birthdays = rf'{constants.OUTPUTS_DIR}\Resident Birthdays\ResidentBirthdays.xlsx'
 
     if file_available(res_birthdays):
         ecase_driver = ecase_downloader.ecase_login()
         ecase_downloader.ecase_birthdays(ecase_driver)
-        time.sleep(1.5)
+        time.sleep(4)
         printing_documents.village_birthdays(only_village=only_village)
         ecase_driver.quit()
 

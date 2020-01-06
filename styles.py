@@ -21,15 +21,26 @@ def print_settings(sheet, widths=None, header=None, one_page=True, landscape=Tru
     and defines x amount of columns.
     For excel, the width for each column in pixels is x*7
     """
-
-    # Creating a list of column indices for excel
-    alpha = []
-    for letter in range(65, 91):
-        alpha.append(chr(letter))
-
+    # Allowing header arg to not be set
+    if header is None:
+        header = []
     # Allowing widths arg to not be set
     if widths is None:
         widths = []
+    # Creating a list of column indices for excel. From 'A' to 'Z'
+    # Will expand alpha to accomodate if you need to set the width
+    # or header of more than 26 columns
+    alpha = []
+    m_char = 65
+    if len(header) > 26:
+        m_char = 65+(len(header)+26)
+
+    for letter in range(65, 91):
+        alpha.append(chr(letter))
+        for letter2 in range(65, m_char):
+            a = chr(letter)
+            b = chr(letter2)
+            alpha.append(a + b)
 
     for i in range(len(widths)):
         sheet.column_dimensions[alpha[i]].width = widths[i]

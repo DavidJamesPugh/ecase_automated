@@ -226,9 +226,8 @@ def ecase_birthdays(driver):
     """
     driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('birthdayList_MCF')
-
     driver.implicitly_wait(10)
-    driver.find_elements_by_id('generate')[0].click()
+    driver.find_element_by_id('generate').click()
 
 
 def care_level_csv(driver):

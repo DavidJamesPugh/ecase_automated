@@ -41,19 +41,13 @@ def pi_risk_levels(driver):
     Takes the pir_code file with customer codes, and downloads and
     creates a file with all resident's PI risk factor
     """
-
+    count = 1
+    cust_codes = []
     codes_book = Workbook()
     codes_sheet = codes_book.active
     header = ['First Name', 'Last Name', 'Wing', 'Room', 'PI Risk', 'PI Desc']
     widths = [20, 15, 20, 7, 7, 15]
     styles.print_settings(codes_sheet, widths, header)
-    codes_book.save(rf'{constants.DOWNLOADS_DIR}\PIRiskLevels.xlsx')
-    codes_book.close()
-
-    count = 1
-    cust_codes = []
-    codes_book = load_workbook(rf'{constants.DOWNLOADS_DIR}\PIRiskLevels.xlsx')
-    codes_sheet = codes_book.active
 
     with open(rf'{constants.DOWNLOADS_DIR}\pir_code.csv') as codes:
         codes_data = csv.reader(codes, delimiter=',')
@@ -63,12 +57,12 @@ def pi_risk_levels(driver):
             try:
                 if row[0] in cust_codes:
                     continue
-                count += 1
                 driver.get(
                     f'{constants.ECASE_URL}?action=assessment&accessmodule=assessment&customerCode={row[0]}')
                 driver.implicitly_wait(10)
                 driver.find_element_by_link_text('Expand All').click()
                 driver.implicitly_wait(10)
+                count += 1
 
             except NoSuchElementException:
                 continue
@@ -115,6 +109,8 @@ def temp_movements_print():
 
     movement_out = {}
     key_list = []
+    headers = ['Key', 'First Name', 'Last Name', 'Wing', 'Room', 'Return date',
+               'Days Away', 'Description', 'Leave Type']
 
     try:
         ecase_moves = load_workbook(rf'{constants.OUTPUTS_DIR}\eCaseTempMoves.xlsx')
@@ -124,20 +120,11 @@ def temp_movements_print():
         ecase_moves = Workbook()
         ecase_movements = ecase_moves.active
         ecase_movements.title = 'Temp Moves'
+        styles.print_settings(ecase_movements, header=headers)
 
     keys = ecase_movements['A':'A']
     for i in keys:
         key_list += [i.value]
-
-    ecase_movements['A1'] = 'Key'
-    ecase_movements['B1'] = 'First Name'
-    ecase_movements['C1'] = 'Last Name'
-    ecase_movements['D1'] = 'Wing'
-    ecase_movements['E1'] = 'Room'
-    ecase_movements['F1'] = 'Return date'
-    ecase_movements['G1'] = 'Days Away'
-    ecase_movements['H1'] = 'Description'
-    ecase_movements['I1'] = 'Leave Type'
 
     with open(rf'{constants.DOWNLOADS_DIR}\temp_movements.csv', newline='') as movements_info:
         movements_info_data = csv.reader(movements_info, delimiter=',', quotechar='"')
@@ -495,6 +482,7 @@ def create_door_label():
 
     try:
         sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
+
     except FileNotFoundError:
         sheet_book = Workbook()
         sheet_book.save(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
@@ -718,7 +706,7 @@ def village_birthdays(only_village=False):
     current_date = datetime.now()
     widths = [5.6, 23, 23, 26, 12, 10, 10, 11.5, 4.5, 4.5, 8, 5]
     headers = ['Title', 'FirstName', 'LastName', 'Wing', 'Block', 'Unit',
-               'Room', 'dateOfBirth', 'Age', 'Day', 'Month', 'Year', 'Age']
+               'Room', 'dateOfBirth', 'Age', 'Day', 'Month', 'Year']
 
     styles.print_settings(birthdays_sheet, widths=widths, header=headers)
 
@@ -751,7 +739,7 @@ def village_birthdays(only_village=False):
                         birthdays_raw.append([row, day, month, year, new_age])
 
             except IndexError:
-                print('pass')
+                pass
 
     for row in birthdays_raw:
         birthdays_sheet.append([row[0][0], row[0][1], row[0][2], row[0][3], row[0][4],
@@ -760,20 +748,19 @@ def village_birthdays(only_village=False):
     birthdays_file.save(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\Residentbirthdays.xlsx')
     birthdays_file.close()
 
-    if only_village is False:
-        xl = pd.ExcelFile(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\Residentbirthdays.xlsx')
-        df = xl.parse('Sheet')
-        df = df.sort_values(by=['Month', 'Day'])
-        writer = pd.ExcelWriter(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\Residentbirthdays.xlsx')
-        df.to_excel(writer, sheet_name='Sheet',
-                    columns=['Title', 'FirstName', 'LastName',
-                             'Wing', 'Block', 'Unit', 'Room',
-                             'dateOfBirth', 'Age'], index=False)
-        writer.save()
-        writer.close()
+    xl = pd.ExcelFile(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\Residentbirthdays.xlsx')
+    df = xl.parse('Sheet')
+    df = df.sort_values(by=['Month', 'Day'])
+    writer = pd.ExcelWriter(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\Residentbirthdays.xlsx')
+    df.to_excel(writer, sheet_name='Sheet',
+                columns=['Title', 'FirstName', 'LastName',
+                         'Wing', 'Block', 'Unit', 'Room',
+                         'dateOfBirth', 'Age',
+                         'Day', 'Month', 'Year'], index=False)
+    writer.save()
+    writer.close()
 
-        birthdays_file.save(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\Residentbirthdays.xlsx')
-        birthdays_file.close()
+    if only_village is False:
         os.startfile(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\Residentbirthdays.xlsx')
         os.remove(rf'{constants.DOWNLOADS_DIR}\birthdayList_MCF.csv')
 
@@ -785,8 +772,9 @@ def village_birthdays(only_village=False):
         del df['Room']
         df.dropna(axis=0, how='any', inplace=True)
         df = df[df.Block != 'Unknown']
+        df = df[df.Block != '']
 
-        writer = pd.ExcelWriter(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\Residentbirthdays.xlsx')
+        writer = pd.ExcelWriter(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\Villagerawbirthdays.xlsx')
         df.to_excel(writer, sheet_name='Sheet',
                     columns=['Title', 'FirstName', 'LastName',
                              'Block', 'Unit',
@@ -800,7 +788,7 @@ def village_birthdays(only_village=False):
         subtitle2 = 'The Retirement Living Team!'
         date = datetime(c_year, c_month, 1).strftime("%B") + ' ' + str(c_year)
 
-        birthdays_file = load_workbook(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\ResidentBirthdays.xlsx')
+        birthdays_file = load_workbook(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\Villagerawbirthdays.xlsx')
         birthday_sheet = birthdays_file.active
 
         village_birthdays_file = Workbook()
@@ -847,11 +835,10 @@ def village_birthdays(only_village=False):
         styles.full_border(resident_birthdays, 'A2:F49', border=['thick'])
         styles.full_border(resident_birthdays, f'B8:E{rowcount}')
         resident_birthdays.print_area = "A2:F49"
+        widths = [5.6, 27.5, 5.6, 16.9, 13, 10.5, 9.2]
+        styles.print_settings(resident_birthdays, widths)
         village_birthdays_file.save(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\VillageBirthdays-{date}.xlsx')
         village_birthdays_file.close()
-
-        widths = [5.6, 27.5, 5.6, 16.9, 13, 10.5, 9.2]
-        styles.print_settings(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\VillageBirthdays-{date}.xlsx', widths)
 
         cakeimg = Image(rf'images\birthdaycake.jpg')
         cakeimg.height = 100
