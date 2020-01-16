@@ -197,7 +197,8 @@ class TestingEcase(unittest.TestCase):
 
 class TestingEcaseReportsAvailable(unittest.TestCase):
     """
-
+    Tests that when you filter the reports in ecase, you only get the reports
+    needed, and nothing extra
     """
 
     driver = None

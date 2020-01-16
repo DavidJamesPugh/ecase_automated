@@ -24,7 +24,7 @@ import downloader_support_functions
 def ecase_login():
     """
         Establishes an instance of chrome in selenium.
-        Navigates to eCase and logs in with ‘dpugh’ credentials. 
+        Navigates to eCase and logs in with credentials provided in constants.py
     """
     prefs = {'download.default_directory': rf'{constants.DOWNLOADS_DIR}'}
     options = webdriver.ChromeOptions()

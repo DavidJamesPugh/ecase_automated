@@ -814,6 +814,8 @@ def village_birthdays(only_village=False):
         os.startfile(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\Residentbirthdays.xlsx')
         os.remove(rf'{constants.DOWNLOADS_DIR}\birthdayList_MCF.csv')
 
+    # This continues the generation, and produces a file with only village
+    # birthdays, formatted for use by Liz Keene
     else:
         xl = pd.ExcelFile(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\Residentbirthdays.xlsx')
         df = xl.parse('Sheet')
