@@ -307,13 +307,6 @@ class TestingEcaseReportsAvailable(unittest.TestCase):
         """
         self.validate('temp_movements', ['temp_movements'])
 
-    def tearDown(self):
-        """
-        Going back to tearDownClass
-        :return:
-        """
-        print('Exiting selenium driver')
-
     @classmethod
     def tearDownClass(cls):
         """

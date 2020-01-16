@@ -216,6 +216,8 @@ def create_front_sheet(village=False, no_print=False):
         sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
         front_sheet = sheet_book.active
 
+    # Catching an openpyxl exception, where i think the file wasnt saved
+    # properly previously, and load_workbook causes this exception
     except BadZipfile:
         os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
         os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
