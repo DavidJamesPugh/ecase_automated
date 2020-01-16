@@ -207,8 +207,8 @@ def front_sheet(entry, village=False):
         ecase_downloader.resident_contacts(ecase_driver, nhi)
         ecase_downloader.resident_image(ecase_driver, nhi)
         ecase_downloader.preferred_name(ecase_driver, nhi)
-        printing_documents.create_front_sheet(village=village)
         ecase_driver.quit()
+        printing_documents.create_front_sheet(village=village)
 
 
 def door_label(entry):
@@ -241,8 +241,8 @@ def door_label(entry):
 
         ecase_downloader.preferred_name(ecase_driver, nhi)
         time.sleep(2)
-        printing_documents.create_door_label()
         ecase_driver.quit()
+        printing_documents.create_door_label()
 
 
 def label_list(entry):

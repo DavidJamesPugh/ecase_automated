@@ -7,6 +7,7 @@ import csv
 import os
 import re
 from datetime import datetime
+from zipfile import BadZipfile
 
 import pandas as pd
 from openpyxl import load_workbook, Workbook
@@ -215,6 +216,18 @@ def create_front_sheet(village=False, no_print=False):
         sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
         front_sheet = sheet_book.active
 
+    except BadZipfile:
+        os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
+        os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
+        if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
+            os.remove(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
+
+        for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):
+            if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
+                photoname = file
+                os.remove(rf'{constants.DOWNLOADS_DIR}\{photoname}')
+        return
+
     except FileNotFoundError:
         #  headings
         main_heading_font = Font(size=14, bold=True, italic=True, color='000080')
@@ -272,8 +285,11 @@ def create_front_sheet(village=False, no_print=False):
         front_sheet = sheet_book.active
 
         #  Column widths
-        styles.print_settings(front_sheet, widths=[0.15, 17.0, .15, 23.0, 4.15,
-                                                   4.15, 16.0, .15, 28.0])
+        styles.print_settings(front_sheet,
+                              widths=[0.15, 17.0, .15,
+                                      23.0, 4.15, 4.15,
+                                      16.0, .15, 28.0],
+                              landscape=False)
 
         front_sheet['B1'].font = main_heading_font
 
@@ -499,6 +515,18 @@ def create_door_label(no_print=False):
 
     try:
         sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
+
+    except BadZipfile:
+        os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
+        os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
+        if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
+            os.remove(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
+
+        for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):
+            if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
+                photoname = file
+                os.remove(rf'{constants.DOWNLOADS_DIR}\{photoname}')
+        return
 
     except FileNotFoundError:
         sheet_book = Workbook()
