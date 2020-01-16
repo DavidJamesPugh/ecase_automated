@@ -215,6 +215,11 @@ def create_front_sheet(village=False, no_print=False):
     try:
         sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
         front_sheet = sheet_book.active
+        styles.print_settings(front_sheet,
+                              widths=[0.15, 17.0, .15,
+                                      23.0, 4.15, 4.15,
+                                      16.0, .15, 28.0],
+                              landscape=False)
 
     except BadZipfile:
         os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
