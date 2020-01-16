@@ -215,11 +215,6 @@ def create_front_sheet(village=False, no_print=False):
     try:
         sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
         front_sheet = sheet_book.active
-        styles.print_settings(front_sheet,
-                              widths=[0.15, 17.0, .15,
-                                      23.0, 4.15, 4.15,
-                                      16.0, .15, 28.0],
-                              landscape=False)
 
     except BadZipfile:
         os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
@@ -291,13 +286,6 @@ def create_front_sheet(village=False, no_print=False):
         sheet_book = Workbook()
         front_sheet = sheet_book.active
 
-        #  Column widths
-        styles.print_settings(front_sheet,
-                              widths=[0.15, 17.0, .15,
-                                      23.0, 4.15, 4.15,
-                                      16.0, .15, 28.0],
-                              landscape=False)
-
         front_sheet['B1'].font = main_heading_font
 
         #  sheet headings writing to sheet & setting text styles
@@ -365,6 +353,13 @@ def create_front_sheet(village=False, no_print=False):
         styles.full_border(front_sheet, 'I53:I55')
         styles.full_border(front_sheet, 'D57:D60')
         styles.full_border(front_sheet, 'I57:I60')
+
+    #  Column widths
+    styles.print_settings(front_sheet,
+                          widths=[0.15, 17.0, .15,
+                                  23.0, 4.15, 4.15,
+                                  16.0, .15, 28.0],
+                          landscape=False)
 
     respite = False
 
