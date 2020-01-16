@@ -226,6 +226,8 @@ def create_front_sheet(village=False, no_print=False):
             if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
                 photoname = file
                 os.remove(rf'{constants.DOWNLOADS_DIR}\{photoname}')
+
+        os.remove(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
         return
 
     except FileNotFoundError:
