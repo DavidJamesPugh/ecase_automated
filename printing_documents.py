@@ -220,12 +220,13 @@ def create_front_sheet(village=False, no_print=False):
     # properly previously, and load_workbook causes this exception
     except BadZipfile:
         fresh_file = True
-        os.remove(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
 
     except FileNotFoundError:
         fresh_file = True
 
     if fresh_file:
+        sheet_book = Workbook()
+        front_sheet = sheet_book.active
         #  headings
         main_heading_font = Font(size=14, bold=True, italic=True, color='000080')
         headings_font = Font(size=10, bold=True, italic=True, color='008000')
@@ -277,9 +278,6 @@ def create_front_sheet(village=False, no_print=False):
                                'G51': 'Name', 'G53': 'Address',
                                'G57': 'Home Phone', 'G58': 'Work Phone',
                                'G59': 'Mobile Phone', 'G60': 'E-mail'}
-
-        sheet_book = Workbook()
-        front_sheet = sheet_book.active
 
         front_sheet['B1'].font = main_heading_font
 

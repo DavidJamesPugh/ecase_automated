@@ -20,7 +20,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 import constants
 import downloader_support_functions
-from button_functions import popup_error
+import button_functions
 
 
 def ecase_login():
@@ -34,9 +34,9 @@ def ecase_login():
     try:
         driver = webdriver.Chrome(options=options)
     except SessionNotCreatedException as e:
-        popup_error(f"{e}.\n"
-                    f"Please contact the Datatec to update "
-                    f"local ChromeDriver to the latest version")
+        button_functions.popup_error(f"{e}.\n"
+                                     f"Please contact the Datatec to update "
+                                     f"local ChromeDriver to the latest version")
         return
 
     driver.get(f'{constants.ECASE_URL}')
@@ -120,8 +120,8 @@ def main_bowel_report(driver, wing: str, age: int):
     driver.find_element_by_id('filter-report-name').send_keys('bowel_report')
     driver.implicitly_wait(10)
 
-    month = (datetime.datetime.now() - datetime.timedelta(days=30*age)).month
-    year = (datetime.datetime.now() - datetime.timedelta(days=30*age)).year
+    month = (datetime.datetime.now() - datetime.timedelta(days=30 * age)).month
+    year = (datetime.datetime.now() - datetime.timedelta(days=30 * age)).year
     month_spec = downloader_support_functions.date_selector(month, year)
     count = age
 
@@ -165,11 +165,12 @@ def resident_image(driver, nhi: str):
         eCase\Downloads folder with the NHI as the name
     """
     driver.get(f'{constants.ECASE_URL}?action=search')
+    driver.find_element_by_id('activeAndInactive').click()
     nhi = nhi.upper()
     nhi_field = driver.find_element_by_name('txtNHINumber')
     nhi_field.send_keys(nhi)
     driver.find_element_by_id('searchButton').click()
-    
+
     try:
         img = driver.find_element_by_id('resImage')
         src = img.get_attribute('src')
@@ -188,6 +189,7 @@ def preferred_name(driver, nhi: str):
         named p_name.txt
     """
     driver.get(f'{constants.ECASE_URL}?action=search')
+    driver.find_element_by_id('activeAndInactive').click()
     nhi = nhi.upper()
     nhi_field = driver.find_element_by_name('txtNHINumber')
     nhi_field.send_keys(nhi)
@@ -202,7 +204,7 @@ def preferred_name(driver, nhi: str):
     except NoSuchElementException:
         pass
 
-    
+
 def resident_contacts(driver, nhi: str):
     """
         Downloads all reports starting with the name ‘fs’.
@@ -221,8 +223,8 @@ def resident_contacts(driver, nhi: str):
                 driver.find_element_by_id('btn-generate').click()
                 time.sleep(2)
         except NoSuchElementException:
-            popup_error("Please recheck the NHI number for correctness, and "
-                        "then contact the Datatec; cannot find the resident")
+            button_functions.popup_error("Please recheck the NHI number for correctness, and "
+                                         "then contact the Datatec; cannot find the resident")
         except ElementClickInterceptedException:
             continue
 
@@ -282,9 +284,9 @@ def ecase_movements(driver):
     driver.find_elements_by_id('generate')[0].click()
 
     date_to_fields = driver.find_elements_by_xpath('//*[@id="clause-field-1-date "]')
-    
+
     date_to_fields[0].click()
-        
+
     # clicking the date that we hovered over
     driver.find_element_by_css_selector(f"body > div.Zebra_DatePicker.dp_visible >"
                                         f" table.dp_daypicker > tbody > "
