@@ -159,10 +159,12 @@ def main_bowel_report(driver, wing: str, age: int):
                         '//*[@id="btn-generate"]').click()
 
 
-def resident_image(driver, nhi: str):
-    r"""
-        Gets the resident’s image and saves it in the
-        eCase\Downloads folder with the NHI as the name
+def nhi_check(driver, nhi):
+    """
+
+    :param driver:
+    :param nhi:
+    :return:
     """
     driver.get(f'{constants.ECASE_URL}?action=search')
     driver.find_element_by_id('activeAndInactive').click()
@@ -172,34 +174,37 @@ def resident_image(driver, nhi: str):
     driver.find_element_by_id('searchButton').click()
 
     try:
-        img = driver.find_element_by_id('resImage')
-        src = img.get_attribute('src')
-        file_ext = str.split(src, '.')
-        urlretrieve(src,
-                    rf'{constants.DOWNLOADS_DIR}\{nhi} Photo.{file_ext[-1]}')
+        driver.find_element(By.XPATH, '//*[@id="formTab1"]/div[2]/h1/span/div/a[3]/u')
 
     except NoSuchElementException:
-        pass
+        driver.quit()
+        if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv'):
+            os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
+        if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv'):
+            os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
+        return button_functions.popup_error("NHI is incorrect, please check you've entered it correctly "
+                                            "and the resident is set up correctly")
 
 
-def preferred_name(driver, nhi: str):
+def preferred_name_and_image(driver, nhi: str):
     r"""
         Gets the resident’s preferred name,
         and saves it in a text file in the eCase\Downloads folder,
         named p_name.txt
     """
-    driver.get(f'{constants.ECASE_URL}?action=search')
-    driver.find_element_by_id('activeAndInactive').click()
-    nhi = nhi.upper()
-    nhi_field = driver.find_element_by_name('txtNHINumber')
-    nhi_field.send_keys(nhi)
-    driver.find_element_by_id('searchButton').click()
+    nhi_check(driver, nhi)
 
     try:
         p_name = driver.find_element_by_name('PreferredName').get_attribute('value')
         file = open(rf'{constants.DOWNLOADS_DIR}\p_name.txt', "w+")
         file.write(p_name)
         file.close()
+
+        img = driver.find_element_by_id('resImage')
+        src = img.get_attribute('src')
+        file_ext = str.split(src, '.')
+        urlretrieve(src,
+                    rf'{constants.DOWNLOADS_DIR}\{nhi} Photo.{file_ext[-1]}')
 
     except NoSuchElementException:
         pass

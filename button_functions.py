@@ -204,9 +204,8 @@ def front_sheet(entry, village=False):
 
     if file_available(front_sheet_file):
         ecase_driver = ecase_downloader.ecase_login()
+        ecase_downloader.preferred_name_and_image(ecase_driver, nhi)
         ecase_downloader.resident_contacts(ecase_driver, nhi)
-        ecase_downloader.resident_image(ecase_driver, nhi)
-        ecase_downloader.preferred_name(ecase_driver, nhi)
         ecase_driver.quit()
         printing_documents.create_front_sheet(village=village)
 
@@ -230,7 +229,7 @@ def door_label(entry):
 
     if file_available(door_label_file):
         ecase_driver = ecase_downloader.ecase_login()
-        ecase_downloader.resident_image(ecase_driver, nhi)
+        ecase_downloader.preferred_name_and_image(ecase_driver, nhi)
         ecase_downloader.resident_contacts(ecase_driver, nhi)
 
         while True:
@@ -239,7 +238,6 @@ def door_label(entry):
             else:
                 break
 
-        ecase_downloader.preferred_name(ecase_driver, nhi)
         time.sleep(2)
         ecase_driver.quit()
         printing_documents.create_door_label()
@@ -271,14 +269,9 @@ def label_list(entry):
             else:
                 break
 
-        ecase_downloader.preferred_name(ecase_driver, nhi)
+        ecase_downloader.preferred_name_and_image(ecase_driver, nhi)
         printing_documents.create_label_list()
         ecase_driver.quit()
-
-        if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv'):
-            os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
-        if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv'):
-            os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
 
 
 # #########################################

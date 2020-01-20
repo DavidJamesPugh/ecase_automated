@@ -219,14 +219,16 @@ def create_front_sheet(village=False, no_print=False):
     # Catching an openpyxl exception, where i think the file wasnt saved
     # properly previously, and load_workbook causes this exception
     except BadZipfile:
+        sheet_book = Workbook()
+        front_sheet = sheet_book.active
         fresh_file = True
 
     except FileNotFoundError:
+        sheet_book = Workbook()
+        front_sheet = sheet_book.active
         fresh_file = True
 
     if fresh_file:
-        sheet_book = Workbook()
-        front_sheet = sheet_book.active
         #  headings
         main_heading_font = Font(size=14, bold=True, italic=True, color='000080')
         headings_font = Font(size=10, bold=True, italic=True, color='008000')
@@ -587,7 +589,7 @@ def create_door_label(no_print=False):
 
     os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
     os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
-    for file in os.listdir(rf'{constants.OUTPUTS_DIR}'):
+    for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):
         if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
             photoname = file
             os.remove(rf'{constants.DOWNLOADS_DIR}\{photoname}')
@@ -733,6 +735,10 @@ def create_label_list():
         os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
     if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
         os.remove(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
+    for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):
+        if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
+            photoname = file
+            os.remove(rf'{constants.DOWNLOADS_DIR}\{photoname}')
 
 
 def village_birthdays(only_village=False):
