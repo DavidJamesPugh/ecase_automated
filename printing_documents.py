@@ -18,6 +18,7 @@ from selenium.webdriver.common.by import By
 
 import constants
 import styles
+import button_functions
 
 
 def clinical_files():
@@ -373,25 +374,33 @@ def create_front_sheet(village=False, no_print=False):
     with open(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv', newline='') as basic_info:
         basic_info_data = csv.reader(basic_info, delimiter=',', quotechar='"')
         basic_data = list(basic_info_data)
-        if 'Andrew' in basic_data[1][0]:
-            basic_data[1][0] = basic_data[1][0][20:len(basic_data[1][0])]
+        try:
+            if 'Andrew' in basic_data[1][0]:
+                basic_data[1][0] = basic_data[1][0][20:len(basic_data[1][0])]
 
-        if not any(substring in basic_data[1][9] for substring in doctors):
-            respite = True
+            if not any(substring in basic_data[1][9] for substring in doctors):
+                respite = True
 
-        for cell in basic_info_index:
-            front_sheet[cell] = basic_data[1][basic_info_index.index(cell)]
-            if cell == 'D12':
-                front_sheet[cell] = (f'{basic_data[1][4][8:10]}/'
-                                     f'{basic_data[1][4][5:7]}/'
-                                     f'{basic_data[1][4][0:4]}')
+            for cell in basic_info_index:
+                front_sheet[cell] = basic_data[1][basic_info_index.index(cell)]
+                if cell == 'D12':
+                    front_sheet[cell] = (f'{basic_data[1][4][8:10]}/'
+                                         f'{basic_data[1][4][5:7]}/'
+                                         f'{basic_data[1][4][0:4]}')
 
-            if cell == 'I14':
-                front_sheet[cell] = (f'{basic_data[1][11][8:10]}/'
-                                     f'{basic_data[1][11][5:7]}/'
-                                     f'{basic_data[1][11][0:4]}')
+                if cell == 'I14':
+                    front_sheet[cell] = (f'{basic_data[1][11][8:10]}/'
+                                         f'{basic_data[1][11][5:7]}/'
+                                         f'{basic_data[1][11][0:4]}')
 
-    #  front_sheet[basic_info_fields_index[14]] = basic_info_fields[14]
+        except IndexError:
+            if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv'):
+                os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
+            if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv'):
+                os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
+            return button_functions.popup_error("NHI is incorrect, please check you've entered it correctly "
+                                                "and the resident is set up correctly with that NHI")
+
     for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):
         if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
             photoname = file
