@@ -209,7 +209,7 @@ def create_front_sheet(village=False, no_print=False):
                           'D57', 'D58', 'D59', 'D60',
                           'I51', 'I53', 'I54', 'I55',
                           'I57', 'I58', 'I59', 'I60']
-
+    fresh_file = False
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
     try:
@@ -219,20 +219,13 @@ def create_front_sheet(village=False, no_print=False):
     # Catching an openpyxl exception, where i think the file wasnt saved
     # properly previously, and load_workbook causes this exception
     except BadZipfile:
-        os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
-        os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
-        if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
-            os.remove(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
-
-        for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):
-            if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
-                photoname = file
-                os.remove(rf'{constants.DOWNLOADS_DIR}\{photoname}')
-
+        fresh_file = True
         os.remove(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
-        return
 
     except FileNotFoundError:
+        fresh_file = True
+
+    if fresh_file:
         #  headings
         main_heading_font = Font(size=14, bold=True, italic=True, color='000080')
         headings_font = Font(size=10, bold=True, italic=True, color='008000')

@@ -11,7 +11,8 @@ import time
 from urllib.request import urlretrieve
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, \
+    SessionNotCreatedException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
@@ -19,6 +20,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 import constants
 import downloader_support_functions
+from button_functions import popup_error
 
 
 def ecase_login():
@@ -29,7 +31,14 @@ def ecase_login():
     prefs = {'download.default_directory': rf'{constants.DOWNLOADS_DIR}'}
     options = webdriver.ChromeOptions()
     options.add_experimental_option('prefs', prefs)
-    driver = webdriver.Chrome(options=options)
+    try:
+        driver = webdriver.Chrome(options=options)
+    except SessionNotCreatedException as e:
+        popup_error(f"{e}.\n"
+                    f"Please contact the Datatec to update "
+                    f"local ChromeDriver to the latest version")
+        return
+
     driver.get(f'{constants.ECASE_URL}')
 
     user_name = driver.find_element_by_id('mod_login_username')
@@ -76,7 +85,7 @@ def ecase_pi_risk(driver):
             continue
 
 
-def care_plan_audits_download(driver, wing):
+def care_plan_audits_download(driver, wing: str):
     """
         Clicks the ‘Generate’ button,
         and enters the wing into the filter box,
@@ -150,7 +159,7 @@ def main_bowel_report(driver, wing: str, age: int):
                         '//*[@id="btn-generate"]').click()
 
 
-def resident_image(driver, nhi):
+def resident_image(driver, nhi: str):
     r"""
         Gets the resident’s image and saves it in the
         eCase\Downloads folder with the NHI as the name
@@ -172,7 +181,7 @@ def resident_image(driver, nhi):
         pass
 
 
-def preferred_name(driver, nhi):
+def preferred_name(driver, nhi: str):
     r"""
         Gets the resident’s preferred name,
         and saves it in a text file in the eCase\Downloads folder,
@@ -183,14 +192,18 @@ def preferred_name(driver, nhi):
     nhi_field = driver.find_element_by_name('txtNHINumber')
     nhi_field.send_keys(nhi)
     driver.find_element_by_id('searchButton').click()
-    
-    p_name = driver.find_element_by_name('PreferredName').get_attribute('value')
-    file = open(rf'{constants.DOWNLOADS_DIR}\p_name.txt', "w+")
-    file.write(p_name)
-    file.close()
+
+    try:
+        p_name = driver.find_element_by_name('PreferredName').get_attribute('value')
+        file = open(rf'{constants.DOWNLOADS_DIR}\p_name.txt', "w+")
+        file.write(p_name)
+        file.close()
+
+    except NoSuchElementException:
+        pass
 
     
-def resident_contacts(driver, nhi):
+def resident_contacts(driver, nhi: str):
     """
         Downloads all reports starting with the name ‘fs’.
         Will be Resident info, and Resident Contact’s info
@@ -208,7 +221,8 @@ def resident_contacts(driver, nhi):
                 driver.find_element_by_id('btn-generate').click()
                 time.sleep(2)
         except NoSuchElementException:
-            continue
+            popup_error("Please recheck the NHI number for correctness, and "
+                        "then contact the Datatec; cannot find the resident")
         except ElementClickInterceptedException:
             continue
 
