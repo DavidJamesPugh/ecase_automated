@@ -210,7 +210,7 @@ class TestingEcaseReportsAvailable(unittest.TestCase):
         :return:
         """
         cls.driver = webdriver.Chrome()
-        cls.driver.get('https://sn.healthmetrics.co.nz/main.php?sx=0&')
+        cls.driver.get(f'{constants.ECASE_URL}')
         user_name = cls.driver.find_element_by_id('mod_login_username')
         user_password = cls.driver.find_element_by_id('mod_login_password')
         user_name.clear()

@@ -12,7 +12,7 @@ from urllib.request import urlretrieve
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, \
-    SessionNotCreatedException
+    SessionNotCreatedException, WebDriverException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
@@ -33,11 +33,12 @@ def ecase_login():
     options.add_experimental_option('prefs', prefs)
     try:
         driver = webdriver.Chrome(options=options)
-    except SessionNotCreatedException as e:
-        button_functions.popup_error(f"{e}.\n"
-                                     f"Please contact the Datatec to update "
-                                     f"local ChromeDriver to the latest version")
-        return
+    except SessionNotCreatedException:
+        return button_functions.popup_error(f"Please contact the Datatec to update "
+                                            f"local ChromeDriver to the latest version")
+    except WebDriverException:
+        return button_functions.popup_error(f"Please contact the Datatec to install "
+                                            f"Chromedriver.exe locally. PATH not set")
 
     driver.get(f'{constants.ECASE_URL}')
 
