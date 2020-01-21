@@ -18,9 +18,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
+import button_functions
 import constants
 import downloader_support_functions
-import button_functions
 
 
 def ecase_login():
@@ -29,19 +29,18 @@ def ecase_login():
         Navigates to eCase and logs in with credentials provided in constants.py
     """
     prefs = {'download.default_directory': rf'{constants.DOWNLOADS_DIR}'}
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option('prefs', prefs)
     try:
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option('prefs', prefs)
         driver = webdriver.Chrome(options=options)
     except SessionNotCreatedException:
-        return button_functions.popup_error(f"Please contact the Datatec to update "
-                                            f"local ChromeDriver to the latest version")
+        return button_functions.popup_error("Please contact the Datatec to update "
+                                            "local ChromeDriver to the latest version")
     except WebDriverException:
-        return button_functions.popup_error(f"Please contact the Datatec to install "
-                                            f"Chromedriver.exe locally. PATH not set")
+        return button_functions.popup_error("Please contact the Datatec to install "
+                                            "Chromedriver.exe locally. PATH not set")
 
     driver.get(f'{constants.ECASE_URL}')
-
     user_name = driver.find_element_by_id('mod_login_username')
     user_password = driver.find_element_by_id('mod_login_password')
     user_name.clear()
@@ -62,12 +61,17 @@ def ecase_data(driver):
     driver.find_element_by_id('filter-report-name').send_keys('data')
 
     driver.implicitly_wait(10)
-    buttons = driver.find_elements_by_id('generate')
+    try:
+        buttons = driver.find_elements_by_id('generate')
+        for button in buttons:
+            button.click()
+            time.sleep(2)
+            driver.implicitly_wait(10)
 
-    for button in buttons:
-        button.click()
-        time.sleep(2)
-        driver.implicitly_wait(10)
+    except NoSuchElementException:
+        driver.quit()
+        files_remover('data_')
+        return button_functions.popup_error("Some or all data reports are not available in the ecase report generator")
 
 
 def ecase_pi_risk(driver):
@@ -81,7 +85,8 @@ def ecase_pi_risk(driver):
         try:
             driver.find_element_by_id('generate').click()
         except NoSuchElementException:
-            continue
+            driver.quit()
+            return button_functions.popup_error("pir_code report not available in the ecase report generator")
         except ElementClickInterceptedException:
             continue
 
@@ -103,7 +108,13 @@ def care_plan_audits_download(driver, wing: str):
     driver.implicitly_wait(10)
     driver.find_element_by_id('generate').click()
     driver.find_element_by_id('clause-field-0').send_keys(wing)
-    driver.find_element_by_id('btn-generate').click()
+    try:
+        driver.find_element_by_id('btn-generate').click()
+
+    except NoSuchElementException:
+        driver.quit()
+        return button_functions.popup_error("care plans report not available in"
+                                            " the ecase report generator")
     time.sleep(2)
 
 
@@ -128,7 +139,11 @@ def main_bowel_report(driver, wing: str, age: int):
 
     wait = WebDriverWait(driver, 10)
     driver.implicitly_wait(10)
-    driver.find_elements_by_id('generate')[0].click()
+    try:
+        driver.find_elements_by_id('generate').click()
+    except NoSuchElementException:
+        driver.quit()
+        return button_functions.popup_error("bowel report not available in the ecase report generator")
 
     fields = driver.find_elements_by_id('clause-field-0')
     date_from_fields = driver.find_elements_by_xpath('//*[@id="clause-field-0-date"]')
@@ -162,9 +177,12 @@ def main_bowel_report(driver, wing: str, age: int):
 
 def nhi_check(driver, nhi):
     """
-
-    :param driver:
-    :param nhi:
+    This inputs and searches for a specific NHI string.
+    If the user does exist in ecase, it will return their page, and
+    on all resident pages, there is a link at xpath
+    //*[@id="formTab1"]/div[2]/h1/span/div/a[3]/u. This is the text 'Resident'.
+    :param driver: selenium webdriver object
+    :param nhi: String like 'AHF3980'. Three letters, followed by 4 numbers.
     :return:
     """
     driver.get(f'{constants.ECASE_URL}?action=search')
@@ -179,19 +197,17 @@ def nhi_check(driver, nhi):
 
     except NoSuchElementException:
         driver.quit()
-        if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv'):
-            os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
-        if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv'):
-            os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
+        files_remover('fs_')
         return button_functions.popup_error("NHI is incorrect, please check you've entered it correctly "
                                             "and the resident is set up correctly")
 
 
 def preferred_name_and_image(driver, nhi: str):
     r"""
-        Gets the resident’s preferred name,
-        and saves it in a text file in the eCase\Downloads folder,
-        named p_name.txt
+        Gets the resident’s preferred name, and image
+        saves the name in a text file in the eCase Automation\Downloads folder,
+        named p_name.txt. The image is saved in the same place.
+        If there is no preferred name or image, just exit the function.
     """
     nhi_check(driver, nhi)
 
@@ -219,18 +235,21 @@ def resident_contacts(driver, nhi: str):
     driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('fs_')
     driver.implicitly_wait(2)
-    buttons = driver.find_elements_by_id('generate')
 
     while not os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv'):
         try:
+            buttons = driver.find_elements_by_id('generate')
             for button in buttons:
                 button.click()
                 driver.find_element_by_id('clause-field-0').send_keys(nhi)
                 driver.find_element_by_id('btn-generate').click()
                 time.sleep(2)
         except NoSuchElementException:
-            button_functions.popup_error("Please recheck the NHI number for correctness, and "
-                                         "then contact the Datatec; cannot find the resident")
+            driver.quit()
+            files_remover('fs_')
+            return button_functions.popup_error("Some or all front sheet reports "
+                                                "are not available in the ecase "
+                                                "report generator")
         except ElementClickInterceptedException:
             continue
 
@@ -242,9 +261,12 @@ def doctor_numbers_download(driver):
     """
     driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('doctor_Numbers')
-
     driver.implicitly_wait(10)
-    driver.find_elements_by_id('generate')[0].click()
+    try:
+        driver.find_elements_by_id('generate').click()
+    except NoSuchElementException:
+        return button_functions.popup_error("The Doctor numbers report is not "
+                                            "available in the ecase report generator")
 
 
 def ecase_birthdays(driver):
@@ -255,7 +277,10 @@ def ecase_birthdays(driver):
     driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('birthdayList_MCF')
     driver.implicitly_wait(10)
-    driver.find_element_by_id('generate').click()
+    try:
+        driver.find_element_by_id('generate').click()
+    except NoSuchElementException:
+        return button_functions.popup_error("The Birthday list report is not available in the ecase report generator")
 
 
 def care_level_csv(driver):
@@ -267,11 +292,17 @@ def care_level_csv(driver):
     driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
     driver.find_element_by_id('filter-report-name').send_keys('pod_')
     driver.implicitly_wait(10)
-    buttons = driver.find_elements_by_id('generate')
-    time.sleep(5)
-    for button in buttons:
-        button.click()
-        time.sleep(2)
+    try:
+        buttons = driver.find_elements_by_id('generate')
+        time.sleep(5)
+        for button in buttons:
+            button.click()
+            time.sleep(2)
+    except NoSuchElementException:
+        driver.quit()
+        files_remover('pod_')
+        return button_functions.popup_error("Some or all podiatry reports are "
+                                            "not available in the ecase report generator")
 
 
 def ecase_movements(driver):
@@ -287,7 +318,12 @@ def ecase_movements(driver):
                                                             datetime.datetime.now().year)
 
     driver.implicitly_wait(10)
-    driver.find_elements_by_id('generate')[0].click()
+    try:
+        driver.find_elements_by_id('generate').click()
+    except NoSuchElementException:
+        driver.quit()
+        return button_functions.popup_error("The Temp movements report is not "
+                                            "available in the ecase report generator")
 
     date_to_fields = driver.find_elements_by_xpath('//*[@id="clause-field-1-date "]')
 
@@ -302,3 +338,17 @@ def ecase_movements(driver):
     driver.implicitly_wait(10)
     driver.find_element(By.XPATH,
                         '//*[@id="btn-generate"]').click()
+
+
+def files_remover(prefix):
+    """
+    Removes all files in the downloads directory that start with the
+    prefix string
+    :param prefix:
+    :return:
+    """
+    files = [file for file in os.listdir(constants.DOWNLOADS_DIR)
+             if file.startswith(f'{prefix}')]
+
+    for file in files:
+        os.remove(rf'{constants.DOWNLOADS_DIR}\{file}')

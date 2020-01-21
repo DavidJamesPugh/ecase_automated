@@ -16,9 +16,9 @@ from openpyxl.styles import Font, Alignment
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
+import button_functions
 import constants
 import styles
-import button_functions
 
 
 def clinical_files():

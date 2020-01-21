@@ -364,7 +364,7 @@ class PrintSettingsTests(unittest.TestCase):
         logo.height = 40
         self.test_sheet.add_image(logo)
         self.test_sheet['c5'] = 'There should be two SAV logos, one above this text and one below.'
-        self.test_sheet['c6'] = 'The columns are set as [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]'
+        self.test_sheet['c6'] = 'The columns are set as [1, 2, 4, 8, 16, 32, 16, 21, 30, .5]'
         self.test_sheet['c7'] = 'The document should be landscape, and the printview should' \
                                 'go to column J'
         self.test_sheet['j2'] = 'filler'
