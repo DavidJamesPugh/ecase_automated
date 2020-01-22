@@ -23,7 +23,7 @@ def training_lists():
 
     myob_file = rf'{constants.STAFF_DIR}\training.CSV'
     training_file = pd.ExcelWriter(rf'{constants.MAIN_DATA_DIR}\Training\Training to be booked.xlsx')
-        
+
     mandatory_training = ['Abuse and Neglect',
                           'Challenging Behaviours',
                           'Code of Rights',
@@ -58,20 +58,29 @@ def training_lists():
     # Accesses each sheet name in Training list above, and inserts the relevant entries
     for sheet in mandatory_training:
         if sheet == 'Man Handling & Falls Prevention':
-            sorted_data[sorted_data.TRNAME == 'Manual Handling and Falls Prevention'].to_excel(training_file,
-                                                                                               sheet, index=False)
-        sorted_data[sorted_data.TRNAME == sheet].to_excel(training_file,
-                                                          sheet,
-                                                          index=False,
-                                                          columns=['STAFF_CODE',
-                                                                   'Name',
-                                                                   'TRNAME',
-                                                                   'TLBOOKED'])
+            sorted_data[sorted_data.TRNAME ==
+                        'Manual Handling and Falls Prevention'].to_excel(
+                training_file,
+                sheet, index=False,
+                columns=['STAFF_CODE',
+                         'Name',
+                         'TRNAME',
+                         'TLBOOKED'])
+
+        sorted_data[sorted_data.TRNAME == sheet].to_excel(
+            training_file,
+            sheet,
+            index=False,
+            columns=['STAFF_CODE',
+                     'Name',
+                     'TRNAME',
+                     'TLBOOKED'])
 
     training_file.save()
     training_file.close()
 
     os.startfile(rf'{constants.MAIN_DATA_DIR}\Training\Training to be booked.xlsx')
+
 
 def birthday_list():
     """
@@ -79,7 +88,7 @@ def birthday_list():
     for this and the next two months.
     Will place in StaffDbase in Datatec folder
     """
-    
+
     birthdays_raw = []
     birthdays_file = Workbook()
     birthdays_sheet = birthdays_file.active
@@ -99,7 +108,7 @@ def birthday_list():
                 day = int(str.split(row[5], sep='/')[0])
                 year = int(str.split(row[5], sep='/')[2])
                 if month >= c_month:
-                    if month <= c_month+2:
+                    if month <= c_month + 2:
                         birthdays_raw.append([row, day, month, year])
 
             except ValueError:
@@ -110,10 +119,10 @@ def birthday_list():
 
             except IndexError:
                 pass
-            
+
     for i in range(10):
         birthdays_sheet[f'{alpha[i]}1'] = headers[i]
-                            
+
     for row in birthdays_raw:
         birthdays_sheet.append([row[0][0], row[0][1], row[0][2],
                                 row[0][3], row[0][4],

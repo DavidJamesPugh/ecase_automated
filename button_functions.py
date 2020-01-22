@@ -153,11 +153,10 @@ def ecase_data_download():
         except FileNotFoundError:
             pass
 
+
 # #####################################
 # ######################Printing Files#
 # #####################################
-
-
 def printing_files():
     """
     Opens a new window with a text entry for NHI number,
@@ -189,8 +188,10 @@ def front_sheet(entry, village=False):
     resident_Image, and preferred_Name. Uses this to create a formatted
     excel file for Admissions manager and Accountants, with Resident info and
     Resident Contacts.
+    :param entry: tkinter Entry object
+    :param village: Bool to print only 2 copies of the front sheet, if true
+    :return:
     """
-
     nhi = entry.get()
     if re.match("^[A-Za-z]{3}[0-9]{4}$", nhi):
         pass
@@ -277,8 +278,6 @@ def label_list(entry):
 # #########################################
 # ######################Printing Files End#
 # #########################################
-
-
 def pi_risks():
     """
     Creates a file of all resident's Risk factor. The file pir_code.csv needs
@@ -332,8 +331,6 @@ def resident_birthday_list(only_village=False):
 # #############################################
 # ######################Birthdays Printout End#
 # #############################################
-
-
 def temp_movements():
     r"""
     Opens a selenium browser with ecase_login,
@@ -431,7 +428,6 @@ and Roche, \nand name WRMedication.xlsx""")
 # #############################################
 # ######################Staff Docs Required End#
 # #############################################
-
 def file_available(file: str):
     """
     Checks whether the file given in the argument is open or not.
