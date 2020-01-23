@@ -374,11 +374,8 @@ The File should have fields
 - Training Name
 - Date Booked""")
 
-    except Exception as e:
-        print(e)
-        popup_error("""Something went wrong.
-                    Check the filename and fields of the MYOB
-                    export are in the correct order""")
+    except PermissionError:
+        popup_error("""The file is open by someone""")
 
 
 def print_clin_files():
@@ -387,7 +384,12 @@ def print_clin_files():
     Clinical Files for Admissions\For Clinical File' Folder
     """
 
-    printing_documents.clinical_files()
+    # Creates a list of all files in clinical_directory ending in .docx
+    files = [file for file in os.listdir(constants.ADMISSION_DIR) if file.endswith('.docx')]
+
+    # Prints all files in the files list
+    for file in files:
+        os.startfile(rf'{constants.ADMISSION_DIR}\{file}', 'print')
 
 
 def staff_birthdays():

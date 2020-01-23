@@ -21,23 +21,6 @@ import constants
 import styles
 
 
-def clinical_files():
-    r"""
-        Print all files in the folder
-        \\SAV-FP01\data$\Shared data\Care Manager\Forms
-        and Standard letters\Clinical Files for Admissions\
-        For Clinical File Folder.
-        This is for Admission files. 
-    """
-
-    # Creates a list of all files in clinical_directory ending in .docx
-    files = [file for file in os.listdir(constants.ADMISSION_DIR) if file.endswith('.docx')]
-
-    # Prints all files in the files list
-    for file in files:
-        os.startfile(rf'{constants.ADMISSION_DIR}\{file}', 'print')
-
-
 def pi_risk_levels(driver):
     """
     Takes the pir_code file with customer codes, and downloads and
