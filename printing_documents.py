@@ -174,6 +174,8 @@ def create_front_sheet(village=False, no_print=False, nurses=False):
         and 1 without for the admission filing.
         This is for the Admission officer and accountants
     """
+    sheet_book = Workbook()
+    front_sheet = sheet_book.active
 
     basic_info_index = ['D6', 'D8', 'D9', 'D10', 'D12', 'D13', 'D14',
                         'D15', 'D16', 'I10', 'I13', 'I14',
@@ -193,147 +195,134 @@ def create_front_sheet(village=False, no_print=False, nurses=False):
                           'D57', 'D58', 'D59', 'D60',
                           'I51', 'I53', 'I54', 'I55',
                           'I57', 'I58', 'I59', 'I60']
-    fresh_file = False
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-    try:
-        sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
-        front_sheet = sheet_book.active
+    #  headings
+    main_heading_font = Font(size=14, bold=True, italic=True, color='000080')
+    headings_font = Font(size=10, bold=True, italic=True, color='008000')
+    sheet_titles_font = Font(size=10, bold=True, underline='single')
 
-    # Catching an openpyxl exception, where i think the file wasnt saved
-    # properly previously, and load_workbook causes this exception
-    except (BadZipfile, FileNotFoundError):
-        sheet_book = Workbook()
-        front_sheet = sheet_book.active
-        fresh_file = True
+    sheet_headings = {'RESIDENTS INFORMATION FRONT SHEET': 'B4',
+                      'ENDURING POWER OF ATTORNEY DETAILS': 'B19',
+                      'CONTACTS FOR HEALTH AND WELFARE DECISIONS': 'B29',
+                      'FUNERAL DIRECTOR': 'B46'}
 
-    if fresh_file:
-        #  headings
-        main_heading_font = Font(size=14, bold=True, italic=True, color='000080')
-        headings_font = Font(size=10, bold=True, italic=True, color='008000')
-        sheet_titles_font = Font(size=10, bold=True, underline='single')
+    sheet_titles = {'Health and Welfare': 'B20', 'Property': 'G20',
+                    'First Contact': 'B30', 'Second Contact': 'G30',
+                    'Send Monthly SAV Account to': 'B50',
+                    'Send Monthly Trust Account to': 'G50'}
 
-        sheet_headings = {'RESIDENTS INFORMATION FRONT SHEET': 'B4',
-                          'ENDURING POWER OF ATTORNEY DETAILS': 'B19',
-                          'CONTACTS FOR HEALTH AND WELFARE DECISIONS': 'B29',
-                          'FUNERAL DIRECTOR': 'B46'}
+    basic_info_fields = {'Location at SAV': 'B6', 'Title': 'B8',
+                         'Surname': 'B9', 'Forenames': 'B10',
+                         'Preferred Name': 'B11', 'Date of Birth': 'B12',
+                         'Place of Birth': 'B13', 'Religion': 'B14',
+                         'Gender': 'B15', 'Marital Status': 'B16',
+                         'Doctor at SAV': 'G10', 'Telephone No.': 'G11',
+                         'NHI No': 'G13', 'Date Admitted': 'G14',
+                         'Care Level': 'G15', 'Ethnic Group': 'G16'}
 
-        sheet_titles = {'Health and Welfare': 'B20', 'Property': 'G20',
-                        'First Contact': 'B30', 'Second Contact': 'G30',
-                        'Send Monthly SAV Account to': 'B50',
-                        'Send Monthly Trust Account to': 'G50'}
+    #  This is for two contacts
+    epoa_info_fields = {'B21': 'Name', 'B23': 'Home Phone',
+                        'B24': 'Work Phone', 'B25': 'Mobile Phone',
+                        'B26': 'E-mail',
+                        'G21': 'Name', 'G23': 'Home Phone',
+                        'G24': 'Work Phone', 'G25': 'Mobile Phone',
+                        'G26': 'E-mail'}
 
-        basic_info_fields = {'Location at SAV': 'B6', 'Title': 'B8',
-                             'Surname': 'B9', 'Forenames': 'B10',
-                             'Preferred Name': 'B11', 'Date of Birth': 'B12',
-                             'Place of Birth': 'B13', 'Religion': 'B14',
-                             'Gender': 'B15', 'Marital Status': 'B16',
-                             'Doctor at SAV': 'G10', 'Telephone No.': 'G11',
-                             'NHI No': 'G13', 'Date Admitted': 'G14',
-                             'Care Level': 'G15', 'Ethnic Group': 'G16'}
+    #  This is for the Primary and secondary contacts
+    contact_info_fields = {'B31': 'Name', 'B33': 'Relationship',
+                           'B35': 'Address', 'B40': 'Home Phone',
+                           'B41': 'Work Phone', 'B42': 'Mobile Phone',
+                           'B43': 'E-mail',
+                           'G31': 'Name', 'G33': 'Relationship',
+                           'G35': 'Address', 'G40': 'Home Phone',
+                           'G41': 'Work Phone', 'G42': 'Mobile Phone',
+                           'G43': 'E-mail'}
 
-        #  This is for two contacts
-        epoa_info_fields = {'B21': 'Name', 'B23': 'Home Phone',
-                            'B24': 'Work Phone', 'B25': 'Mobile Phone',
-                            'B26': 'E-mail',
-                            'G21': 'Name', 'G23': 'Home Phone',
-                            'G24': 'Work Phone', 'G25': 'Mobile Phone',
-                            'G26': 'E-mail'}
+    #  Funeral Director. Additional Monthly SAV and Trust account contact
+    funeral_info_fields = {'B47': 'Company Name', 'B48': 'Phone Number',
+                           'G47': 'Type of Service', 'B51': 'Name',
+                           'B53': 'Address', 'B57': 'Home Phone',
+                           'B58': 'Work Phone', 'B59': 'Mobile Phone',
+                           'B60': 'E-mail',
+                           'G51': 'Name', 'G53': 'Address',
+                           'G57': 'Home Phone', 'G58': 'Work Phone',
+                           'G59': 'Mobile Phone', 'G60': 'E-mail'}
 
-        #  This is for the Primary and secondary contacts
-        contact_info_fields = {'B31': 'Name', 'B33': 'Relationship',
-                               'B35': 'Address', 'B40': 'Home Phone',
-                               'B41': 'Work Phone', 'B42': 'Mobile Phone',
-                               'B43': 'E-mail',
-                               'G31': 'Name', 'G33': 'Relationship',
-                               'G35': 'Address', 'G40': 'Home Phone',
-                               'G41': 'Work Phone', 'G42': 'Mobile Phone',
-                               'G43': 'E-mail'}
+    front_sheet['B1'].font = main_heading_font
 
-        #  Funeral Director. Additional Monthly SAV and Trust account contact
-        funeral_info_fields = {'B47': 'Company Name', 'B48': 'Phone Number',
-                               'G47': 'Type of Service', 'B51': 'Name',
-                               'B53': 'Address', 'B57': 'Home Phone',
-                               'B58': 'Work Phone', 'B59': 'Mobile Phone',
-                               'B60': 'E-mail',
-                               'G51': 'Name', 'G53': 'Address',
-                               'G57': 'Home Phone', 'G58': 'Work Phone',
-                               'G59': 'Mobile Phone', 'G60': 'E-mail'}
+    #  sheet headings writing to sheet & setting text styles
+    for heading in sheet_headings:
+        front_sheet[sheet_headings[heading]] = heading
+        front_sheet[sheet_headings[heading]].font = headings_font
 
-        front_sheet['B1'].font = main_heading_font
+    #  sheet titles writing to sheet & setting text style
+    for title in sheet_titles:
+        front_sheet[sheet_titles[title]] = title
+        front_sheet[sheet_titles[title]].font = sheet_titles_font
 
-        #  sheet headings writing to sheet & setting text styles
-        for heading in sheet_headings:
-            front_sheet[sheet_headings[heading]] = heading
-            front_sheet[sheet_headings[heading]].font = headings_font
+    # Writing the basic info headers into the file
+    for info in basic_info_fields:
+        front_sheet[basic_info_fields[info]] = info
 
-        #  sheet titles writing to sheet & setting text style
-        for title in sheet_titles:
-            front_sheet[sheet_titles[title]] = title
-            front_sheet[sheet_titles[title]].font = sheet_titles_font
+    #  EPOA Details writing to sheet
+    for epoa in epoa_info_fields:
+        front_sheet[epoa] = epoa_info_fields[epoa]
 
-        # Writing the basic info headers into the file
-        for info in basic_info_fields:
-            front_sheet[basic_info_fields[info]] = info
+    #  Contact info writing to sheet# # #
+    for contact in contact_info_fields:
+        front_sheet[contact] = contact_info_fields[contact]
 
-        #  EPOA Details writing to sheet
-        for epoa in epoa_info_fields:
-            front_sheet[epoa] = epoa_info_fields[epoa]
+    #  Funeral director info writing to sheet
+    for funeral_info in funeral_info_fields:
+        front_sheet[funeral_info] = funeral_info_fields[funeral_info]
 
-        #  Contact info writing to sheet# # #
-        for contact in contact_info_fields:
-            front_sheet[contact] = contact_info_fields[contact]
+    #  sheet image writing to sheet & positioning
+    logo = Image(r'images\SAVLandscape.jpg')
+    logo.anchor = 'A1'
+    logo.width = 250
+    logo.height = 40
+    front_sheet.add_image(logo)
+    sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
 
-        #  Funeral director info writing to sheet
-        for funeral_info in funeral_info_fields:
-            front_sheet[funeral_info] = funeral_info_fields[funeral_info]
+    #  Setting text borders for whole sheet
+    styles.full_border(front_sheet, 'D6')
 
-        #  sheet image writing to sheet & positioning
-        logo = Image(r'images\SAVLandscape.jpg')
-        logo.anchor = 'A1'
-        logo.width = 250
-        logo.height = 40
-        front_sheet.add_image(logo)
-        sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
+    styles.full_border(front_sheet, 'D8:D11')
+    styles.full_border(front_sheet, 'D12:D17')
+    styles.full_border(front_sheet, 'I10:I11')
+    styles.full_border(front_sheet, 'I13:I17')
 
-        #  Setting text borders for whole sheet
-        styles.full_border(front_sheet, 'D6')
+    styles.full_border(front_sheet, 'D21')
+    styles.full_border(front_sheet, 'D23:D26')
+    styles.full_border(front_sheet, 'I21')
+    styles.full_border(front_sheet, 'I23:I26')
 
-        styles.full_border(front_sheet, 'D8:D11')
-        styles.full_border(front_sheet, 'D12:D17')
-        styles.full_border(front_sheet, 'I10:I11')
-        styles.full_border(front_sheet, 'I13:I17')
+    styles.full_border(front_sheet, 'D31')
+    styles.full_border(front_sheet, 'D33')
+    styles.full_border(front_sheet, 'D35:D38')
+    styles.full_border(front_sheet, 'D40:D43')
+    styles.full_border(front_sheet, 'I31')
+    styles.full_border(front_sheet, 'I33')
+    styles.full_border(front_sheet, 'I35:I38')
+    styles.full_border(front_sheet, 'I40:I43')
 
-        styles.full_border(front_sheet, 'D21')
-        styles.full_border(front_sheet, 'D23:D26')
-        styles.full_border(front_sheet, 'I21')
-        styles.full_border(front_sheet, 'I23:I26')
+    styles.full_border(front_sheet, 'D47:D48')
+    styles.full_border(front_sheet, 'I47')
 
-        styles.full_border(front_sheet, 'D31')
-        styles.full_border(front_sheet, 'D33')
-        styles.full_border(front_sheet, 'D35:D38')
-        styles.full_border(front_sheet, 'D40:D43')
-        styles.full_border(front_sheet, 'I31')
-        styles.full_border(front_sheet, 'I33')
-        styles.full_border(front_sheet, 'I35:I38')
-        styles.full_border(front_sheet, 'I40:I43')
+    styles.full_border(front_sheet, 'D51')
+    styles.full_border(front_sheet, 'I51')
+    styles.full_border(front_sheet, 'D53:D55')
+    styles.full_border(front_sheet, 'I53:I55')
+    styles.full_border(front_sheet, 'D57:D60')
+    styles.full_border(front_sheet, 'I57:I60')
 
-        styles.full_border(front_sheet, 'D47:D48')
-        styles.full_border(front_sheet, 'I47')
-
-        styles.full_border(front_sheet, 'D51')
-        styles.full_border(front_sheet, 'I51')
-        styles.full_border(front_sheet, 'D53:D55')
-        styles.full_border(front_sheet, 'I53:I55')
-        styles.full_border(front_sheet, 'D57:D60')
-        styles.full_border(front_sheet, 'I57:I60')
-
-        #  Column widths
-        styles.print_settings(front_sheet,
-                              widths=[0.15, 17.0, .15,
-                                      23.0, 4.15, 4.15,
-                                      16.0, .15, 28.0],
-                              landscape=False)
+    #  Column widths
+    styles.print_settings(front_sheet,
+                          widths=[0.15, 17.0, .15,
+                                  23.0, 4.15, 4.15,
+                                  16.0, .15, 28.0],
+                          landscape=False)
 
     respite = False
 
@@ -372,10 +361,7 @@ def create_front_sheet(village=False, no_print=False, nurses=False):
                                          f'{basic_data[1][11][0:4]}')
 
         except IndexError:
-            if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv'):
-                os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
-            if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv'):
-                os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
+            info_files_remover(['fs_Res.csv', 'fs_Con.csv'])
             return button_functions.popup_error("NHI is incorrect, please check you've entered it correctly "
                                                 "and the resident is set up correctly with that NHI")
 
