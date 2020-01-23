@@ -57,10 +57,7 @@ def ecase_data(driver):
         Navigates to the report screen,
         and downloads all reports with the keyword ‘data’
     """
-    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
-    driver.find_element_by_id('filter-report-name').send_keys('data')
-
-    driver.implicitly_wait(10)
+    search_reports(driver, 'data')
     try:
         buttons = driver.find_elements_by_id('generate')
         for button in buttons:
@@ -79,8 +76,7 @@ def ecase_pi_risk(driver):
     Downloads the pir_code from ecase reports that contains the customer codes for each resident
     """
     # Download the csv with all customer codes
-    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
-    driver.find_element_by_id('filter-report-name').send_keys('pir_code')
+    search_reports(driver, 'pir_code')
     while not os.path.isfile(rf'{constants.DOWNLOADS_DIR}\pir_code.csv'):
         try:
             driver.find_element_by_id('generate').click()
@@ -103,9 +99,7 @@ def care_plan_audits_download(driver, wing: str):
         is then used to create a file with a sheet for each area
         and their care plan status.
     """
-    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
-    driver.find_element_by_id('filter-report-name').send_keys('cp_')
-    driver.implicitly_wait(10)
+    search_reports(driver, 'cp_')
     driver.find_element_by_id('generate').click()
     driver.find_element_by_id('clause-field-0').send_keys(wing)
     try:
@@ -128,9 +122,7 @@ def main_bowel_report(driver, wing: str, age: int):
     :param age: number of months in the past
     :return:
     """
-    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
-    driver.find_element_by_id('filter-report-name').send_keys('bowel_report')
-    driver.implicitly_wait(10)
+    search_reports(driver, 'bowel_report')
 
     month = (datetime.datetime.now() - datetime.timedelta(days=30 * age)).month
     year = (datetime.datetime.now() - datetime.timedelta(days=30 * age)).year
@@ -198,7 +190,8 @@ def nhi_check(driver, nhi):
     except NoSuchElementException:
         driver.quit()
         files_remover('fs_')
-        return button_functions.popup_error("NHI is incorrect, please check you've entered it correctly "
+        return button_functions.popup_error("NHI is incorrect, please check "
+                                            "you've entered it correctly "
                                             "and the resident is set up correctly")
 
 
@@ -237,10 +230,7 @@ def resident_contacts(driver, nhi: str):
         Downloads all reports starting with the name ‘fs’.
         Will be Resident info, and Resident Contact’s info
     """
-    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
-    driver.find_element_by_id('filter-report-name').send_keys('fs_')
-    driver.implicitly_wait(2)
-
+    search_reports(driver, 'fs_')
     while not os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv'):
         try:
             buttons = driver.find_elements_by_id('generate')
@@ -264,9 +254,7 @@ def doctor_numbers_download(driver):
         Downloads the report with ‘doctor’ in the name.
         Report has a list of residents and who their doctor is.
     """
-    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
-    driver.find_element_by_id('filter-report-name').send_keys('doctor_Numbers')
-    driver.implicitly_wait(10)
+    search_reports(driver, 'doctor_Numbers')
     try:
         driver.find_elements_by_id('generate').click()
     except NoSuchElementException:
@@ -279,13 +267,12 @@ def ecase_birthdays(driver):
         Downloads the report with ‘birthdayList’ in the name.
         Report has the list of resident birth dates
     """
-    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
-    driver.find_element_by_id('filter-report-name').send_keys('birthdayList_MCF')
-    driver.implicitly_wait(10)
+    search_reports(driver, 'birthdayList_MCF')
     try:
         driver.find_element_by_id('generate').click()
     except NoSuchElementException:
-        return button_functions.popup_error("The Birthday list report is not available in the ecase report generator")
+        return button_functions.popup_error("The Birthday list report is "
+                                            "not available in the ecase report generator")
 
 
 def care_level_csv(driver):
@@ -294,9 +281,7 @@ def care_level_csv(driver):
         Downloads the report ‘pod_MCF’, and ‘pod_Residents’,
         both with the level of care for each resident
     """
-    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
-    driver.find_element_by_id('filter-report-name').send_keys('pod_')
-    driver.implicitly_wait(10)
+    search_reports(driver, 'pod_')
     try:
         buttons = driver.find_elements_by_id('generate')
         time.sleep(5)
@@ -316,8 +301,7 @@ def ecase_movements(driver):
         Handles the selecting of dates within eCase date selector,
         selects from 1 July 2018, till the end of the current month.
     """
-    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
-    driver.find_element_by_id('filter-report-name').send_keys('temp_movements')
+    search_reports(driver, 'temp_movements')
 
     month_spec = downloader_support_functions.date_selector(datetime.datetime.now().month,
                                                             datetime.datetime.now().year)
@@ -356,3 +340,15 @@ def files_remover(prefix):
              if file.startswith(f'{prefix}')]
     for file in files:
         os.remove(rf'{constants.DOWNLOADS_DIR}\{file}')
+
+
+def search_reports(driver, key):
+    """
+    Navigates to the report generator, and searches for reports by the key
+    :param driver: selenium webdriver object
+    :param key: String to search the report generator for
+    :return:
+    """
+    driver.get(f'{constants.ECASE_URL}?action=reportGenerator&active=1')
+    driver.find_element_by_id('filter-report-name').send_keys(key)
+    driver.implicitly_wait(10)
