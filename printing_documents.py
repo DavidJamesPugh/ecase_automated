@@ -101,7 +101,7 @@ def temp_movements_print():
         ecase_moves = load_workbook(rf'{constants.OUTPUTS_DIR}\eCaseTempMoves.xlsx')
         ecase_movements = ecase_moves['Temp Moves']
 
-    except FileNotFoundError:
+    except (BadZipfile, FileNotFoundError):
         ecase_moves = Workbook()
         ecase_movements = ecase_moves.active
         ecase_movements.title = 'Temp Moves'
@@ -202,12 +202,7 @@ def create_front_sheet(village=False, no_print=False, nurses=False):
 
     # Catching an openpyxl exception, where i think the file wasnt saved
     # properly previously, and load_workbook causes this exception
-    except BadZipfile:
-        sheet_book = Workbook()
-        front_sheet = sheet_book.active
-        fresh_file = True
-
-    except FileNotFoundError:
+    except (BadZipfile, FileNotFoundError):
         sheet_book = Workbook()
         front_sheet = sheet_book.active
         fresh_file = True
@@ -333,12 +328,12 @@ def create_front_sheet(village=False, no_print=False, nurses=False):
         styles.full_border(front_sheet, 'D57:D60')
         styles.full_border(front_sheet, 'I57:I60')
 
-    #  Column widths
-    styles.print_settings(front_sheet,
-                          widths=[0.15, 17.0, .15,
-                                  23.0, 4.15, 4.15,
-                                  16.0, .15, 28.0],
-                          landscape=False)
+        #  Column widths
+        styles.print_settings(front_sheet,
+                              widths=[0.15, 17.0, .15,
+                                      23.0, 4.15, 4.15,
+                                      16.0, .15, 28.0],
+                              landscape=False)
 
     respite = False
 
@@ -495,6 +490,8 @@ def create_front_sheet(village=False, no_print=False, nurses=False):
 
     except PermissionError:
         info_files_remover()
+        return button_functions.popup_error("Could not print front sheets, as"
+                                            " the file has been opened by someone")
 
 
 def create_door_label(no_print=False):
@@ -507,16 +504,11 @@ def create_door_label(no_print=False):
     try:
         try:
             sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
+            door_sheet = sheet_book.active
 
-        except BadZipfile:
-            info_files_remover()
-            return
-
-        except FileNotFoundError:
+        except (BadZipfile, FileNotFoundError):
             sheet_book = Workbook()
-            sheet_book.save(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
-
-        door_sheet = sheet_book.active
+            door_sheet = sheet_book.active
 
         if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
             p_file = open(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
@@ -574,6 +566,8 @@ def create_door_label(no_print=False):
         info_files_remover()
     except PermissionError:
         info_files_remover()
+        return button_functions.popup_error("Could not print Door Label, as"
+                                            " the file has been opened by someone")
 
 
 def create_label_list():
@@ -588,11 +582,12 @@ def create_label_list():
     try:
         try:
             sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx')
-        except FileNotFoundError:
-            sheet_book = Workbook()
-            sheet_book.save(rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx')
+            label_sheet = sheet_book.active
 
-        label_sheet = sheet_book.active
+        except (BadZipfile, FileNotFoundError):
+            sheet_book = Workbook()
+            label_sheet = sheet_book.active
+
         doctors = ['Mascher', 'Jun', 'Mulgan', 'Hulley']
 
         styles.print_settings(label_sheet, widths=[14.714, 8.88571, 8.88571,
@@ -714,6 +709,8 @@ def create_label_list():
 
     except PermissionError:
         info_files_remover()
+        return button_functions.popup_error("Could not print Label sheet, as"
+                                            " the file has been opened by someone else")
 
 
 def village_birthdays(only_village=False):
