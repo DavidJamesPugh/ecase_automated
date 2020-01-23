@@ -166,18 +166,13 @@ def printing_files():
     nhi_entry = tkinter.Entry(nhi_window)
     nhi_entry.grid(row=1, column=1, columnspan=3, padx=50, pady=5)
 
-    tkinter.Button(nhi_window, text="Print Resident Front Sheet",
-                   command=lambda: front_sheet(nhi_entry)).grid(column=2)
-    tkinter.Button(nhi_window, text="Print RLV Front Sheet",
-                   command=lambda: front_sheet(nhi_entry, village=True)).grid(column=2, pady=5)
-    tkinter.Button(nhi_window, text="Print Nurses Front Sheet",
-                   command=lambda: front_sheet(nhi_entry, nurses=True)).grid(column=2)
-    tkinter.Button(nhi_window, text="Print Door Label",
-                   command=lambda: door_label(nhi_entry)).grid(column=2, pady=5)
-    tkinter.Button(nhi_window, text="Create Labels List",
-                   command=lambda: label_list(nhi_entry)).grid(column=2)
-    tkinter.Button(nhi_window, text="Quit",
-                   command=lambda: nhi_window.destroy()).grid(column=2, pady=10)
+    declare_buttons(nhi_window,
+                    {"Print Resident Front Sheet": lambda: front_sheet(nhi_entry),
+                     "Print RLV Front Sheet": lambda: front_sheet(nhi_entry, village=True),
+                     "Print Nurses Front Sheet": lambda: front_sheet(nhi_entry, nurses=True),
+                     "Print Door Label": lambda: door_label(nhi_entry),
+                     "Create Labels List": lambda: label_list(nhi_entry),
+                     "Quit": lambda: nhi_window.destroy()}, 2)
 
 
 def front_sheet(entry, village=False, nurses=False):
@@ -191,14 +186,8 @@ def front_sheet(entry, village=False, nurses=False):
     :param nurses:
     :return:
     """
-    nhi = nhi_format_check(entry)
-
-    if file_available(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx'):
-        ecase_driver = ecase_downloader.ecase_login()
-        ecase_downloader.preferred_name_and_image(ecase_driver, nhi)
-        ecase_downloader.resident_contacts(ecase_driver, nhi)
-        ecase_driver.quit()
-        printing_documents.create_front_sheet(village=village, nurses=nurses)
+    printing_resident_sheets(entry, rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
+    printing_documents.create_front_sheet(village=village, nurses=nurses)
 
 
 def door_label(entry):
@@ -209,14 +198,8 @@ def door_label(entry):
     then uses create_Door_Label to create a formatted excel
     file with the resident’s name and photo to place on their door
     """
-    nhi = nhi_format_check(entry)
-
-    if file_available(rf'{constants.OUTPUTS_DIR}\door_label.xlsx'):
-        ecase_driver = ecase_downloader.ecase_login()
-        ecase_downloader.preferred_name_and_image(ecase_driver, nhi)
-        ecase_downloader.resident_contacts(ecase_driver, nhi)
-        ecase_driver.quit()
-        printing_documents.create_door_label()
+    printing_resident_sheets(entry, rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
+    printing_documents.create_door_label()
 
 
 def label_list(entry):
@@ -226,14 +209,8 @@ def label_list(entry):
     Gets the preferred_Name, and then create_Label_List is
     called to generate a formatted excel file to print sticky labels
     """
-    nhi = nhi_format_check(entry)
-
-    if file_available(rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx'):
-        ecase_driver = ecase_downloader.ecase_login()
-        ecase_downloader.resident_contacts(ecase_driver, nhi)
-        ecase_downloader.preferred_name_and_image(ecase_driver, nhi)
-        ecase_driver.quit()
-        printing_documents.create_label_list()
+    printing_resident_sheets(entry, rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx')
+    printing_documents.create_label_list()
 
 
 # #########################################
@@ -424,10 +401,11 @@ def popup_error(msg: str):
     popup.mainloop()
 
 
-def nhi_format_check(entry):
+def printing_resident_sheets(entry, file):
     """
 
     :param entry:
+    :param file:
     :return:
     """
     nhi = entry.get()
@@ -435,4 +413,27 @@ def nhi_format_check(entry):
         pass
     else:
         popup_error("Incorrect NHI format entered, please try again")
-    return nhi
+
+    if file_available(file):
+        ecase_driver = ecase_downloader.ecase_login()
+        ecase_downloader.resident_contacts(ecase_driver, nhi)
+        ecase_downloader.preferred_name_and_image(ecase_driver, nhi)
+        ecase_driver.quit()
+
+
+def declare_buttons(window, button_dict: dict, column):
+    """
+
+    :param window: tkinter window object
+    :param button_dict: dictionary of button text as keys, with the related
+                        commands as values
+    :param column: which column these buttons will be on
+    :return:
+    """
+    for button in button_dict:
+        if button == "Quit":
+            tkinter.Button(window, text=button, command=button_dict[button]
+                           ).grid(column=column, pady=7.5, padx=5)
+        else:
+            tkinter.Button(window, text=button, command=button_dict[button]
+                           ).grid(column=column, pady=2.5, padx=5)
