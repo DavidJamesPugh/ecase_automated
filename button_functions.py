@@ -403,7 +403,9 @@ def popup_error(msg: str):
 
 def printing_resident_sheets(entry, file):
     """
-
+    Checks if the NHI is valid, then downloads the contacts file from ecase
+    Checks if the NHI exists in ecase, and downloads the preferred name and image
+    Then quits the selenium browser.
     :param entry:
     :param file:
     :return:

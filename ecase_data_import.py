@@ -566,7 +566,9 @@ def bowel_report_cleanup():
 
 def care_plans_setup():
     """
-    Sets up an excel file with a sheet per area.
+    Sets up an excel file with a sheet per area. This is needed to provide the
+    looped care_plans_import a sanitary excel workbook with the correct, empty
+    sheets to work with
     """
 
     try:
