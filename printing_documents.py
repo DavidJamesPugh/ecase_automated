@@ -361,7 +361,7 @@ def create_front_sheet(village=False, no_print=False, nurses=False):
                                          f'{basic_data[1][11][0:4]}')
 
         except IndexError:
-            info_files_remover(['fs_Res.csv', 'fs_Con.csv'])
+            info_files_remover()
             return button_functions.popup_error("NHI is incorrect, please check you've entered it correctly "
                                                 "and the resident is set up correctly with that NHI")
 
@@ -472,10 +472,10 @@ def create_front_sheet(village=False, no_print=False, nurses=False):
         sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
         sheet_book.close()
 
-        info_files_remover(['fs_Con.csv', 'fs_Res.csv', 'p_name.txt'])
+        info_files_remover()
 
     except PermissionError:
-        info_files_remover(['fs_Con.csv', 'fs_Res.csv', 'p_name.txt'])
+        info_files_remover()
         return button_functions.popup_error("Could not print front sheets, as"
                                             " the file has been opened by someone")
 
@@ -549,9 +549,9 @@ def create_door_label(no_print=False):
         if not no_print:
             os.startfile(rf'{constants.OUTPUTS_DIR}\door_label.xlsx', 'print')
 
-        info_files_remover(['fs_Con.csv', 'fs_Res.csv', 'p_name.txt'])
+        info_files_remover()
     except PermissionError:
-        info_files_remover(['fs_Con.csv', 'fs_Res.csv', 'p_name.txt'])
+        info_files_remover()
         return button_functions.popup_error("Could not print Door Label, as"
                                             " the file has been opened by someone")
 
@@ -691,10 +691,10 @@ def create_label_list():
 
         os.startfile(rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx')
 
-        info_files_remover(['fs_Con.csv', 'fs_Res.csv', 'p_name.txt'])
+        info_files_remover()
 
     except PermissionError:
-        info_files_remover(['fs_Con.csv', 'fs_Res.csv', 'p_name.txt'])
+        info_files_remover()
         return button_functions.popup_error("Could not print Label sheet, as"
                                             " the file has been opened by someone else")
 
@@ -868,7 +868,7 @@ def village_birthdays(only_village=False):
         os.remove(rf'{constants.DOWNLOADS_DIR}\birthdayList_MCF.csv')
 
 
-def info_files_remover(file_list: list):
+def info_files_remover():
     """
 
     :return:
@@ -876,5 +876,5 @@ def info_files_remover(file_list: list):
     for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):
         if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
             os.remove(rf'{constants.DOWNLOADS_DIR}\{file}')
-        if file in file_list:
+        if file in ['fs_Con.csv', 'fs_Res.csv', 'p_name.txt']:
             os.remove(rf'{constants.DOWNLOADS_DIR}\{file}')
