@@ -217,9 +217,14 @@ def preferred_name_and_image(driver, nhi: str):
         file.write(p_name)
         file.close()
 
+    except NoSuchElementException:
+        pass
+
+    try:
         img = driver.find_element_by_id('resImage')
         src = img.get_attribute('src')
         file_ext = str.split(src, '.')
+        nhi = nhi.upper()
         urlretrieve(src,
                     rf'{constants.DOWNLOADS_DIR}\{nhi} Photo.{file_ext[-1]}')
 

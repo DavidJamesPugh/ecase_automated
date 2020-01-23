@@ -183,7 +183,7 @@ def temp_movements_print():
     os.remove(rf'{constants.DOWNLOADS_DIR}\temp_movements.csv')
 
 
-def create_front_sheet(village=False, no_print=False):
+def create_front_sheet(village=False, no_print=False, nurses=False):
     """
         Takes the fs_Res and fs_Con reports from eCase,
         and produces a formatted front sheet for use in admission files.
@@ -480,36 +480,34 @@ def create_front_sheet(village=False, no_print=False):
 
                     else:
                         front_sheet['I11'] = 'No Number Present'
-
-    #  Printing out Frontsheet without monthly accounts fields
-    front_sheet.print_area = 'B1:I48'
-    sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
-    if not no_print:
-        os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
-
-    #  Printing out Frontsheet with monthly accounts fields
-    front_sheet.print_area = 'B1:I60'
-    sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
-    if not no_print:
-        os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
-
-    sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
-    sheet_book.close()
-
-    if not no_print:
-        if village is False:
-            # print an extra accounts page if in the MCF
+    try:
+        #  Printing out Frontsheet without monthly accounts fields
+        front_sheet.print_area = 'B1:I48'
+        sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
+        if not no_print:
             os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
+            if nurses:
+                os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
 
-    os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
-    os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
-    if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
-        os.remove(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
+        #  Printing out Frontsheet with monthly accounts fields
+        front_sheet.print_area = 'B1:I60'
+        sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
+        if not no_print:
+            if not nurses:
+                os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
 
-    for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):
-        if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
-            photoname = file
-            os.remove(rf'{constants.DOWNLOADS_DIR}\{photoname}')
+        sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
+        sheet_book.close()
+
+        if not no_print:
+            if not village:
+                # print an extra accounts page if in the MCF
+                os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
+
+        info_files_remover()
+
+    except PermissionError:
+        info_files_remover()
 
 
 def create_door_label(no_print=False):
@@ -520,88 +518,75 @@ def create_door_label(no_print=False):
     """
 
     try:
-        sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
+        try:
+            sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
 
-    except BadZipfile:
-        os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
-        os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
+        except BadZipfile:
+            info_files_remover()
+            return
+
+        except FileNotFoundError:
+            sheet_book = Workbook()
+            sheet_book.save(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
+
+        door_sheet = sheet_book.active
+
         if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
-            os.remove(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
+            p_file = open(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
+            p_name = p_file.read()
+            p_file.close()
+        else:
+            p_name = ''
 
+        with open(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv', newline='') as basic_info:
+            basic_info_data = csv.reader(basic_info, delimiter=',', quotechar='"')
+            basic_data = list(basic_info_data)
+
+        namecard_font = Font(size=36, bold=True, name='Arial')
+
+        nhi_font = Font(size=28, bold=True, name='Copperplate Gothic Light')
+
+        door_sheet['B6'] = basic_data[1][1] + ' ' + basic_data[1][3] + ' (' + p_name + ') ' + basic_data[1][2]
+        door_sheet['B6'].font = namecard_font
+        door_sheet['B6'].alignment = Alignment(horizontal='center', vertical='center',
+                                               wrap_text=True)
+        door_sheet.merge_cells(start_row=6, start_column=2, end_row=18, end_column=10)
+        door_sheet['C24'] = basic_data[1][2]
+        door_sheet['C24'].font = nhi_font
+        door_sheet['C27'] = basic_data[1][1]
+        door_sheet['C27'].font = nhi_font
+        door_sheet['C29'] = basic_data[1][3]
+        door_sheet['C29'].font = nhi_font
+        door_sheet['C35'] = 'NHI No:'
+        door_sheet['C35'].font = nhi_font
+        door_sheet['F35'] = basic_data[1][10]
+        door_sheet['F35'].font = nhi_font
+
+        # # # Inserting Resident Photo
         for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):
             if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
                 photoname = file
-                os.remove(rf'{constants.DOWNLOADS_DIR}\{photoname}')
-        return
+                profile = Image(rf'{constants.DOWNLOADS_DIR}\{photoname}')
+                profile.anchor = 'H21'
+                profile.height = 212
+                profile.width = 192
+                door_sheet.add_image(profile)
+                sheet_book.save(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
 
-    except FileNotFoundError:
-        sheet_book = Workbook()
+        styles.full_border(door_sheet, 'B6:J18', border=['double'])
+        styles.full_border(door_sheet, 'B21:J38', border=['double'])
+
+        door_sheet.print_area = 'A5:K39'
+        styles.print_settings(door_sheet, landscape=False)
         sheet_book.save(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
+        sheet_book.close()
 
-    door_sheet = sheet_book.active
+        if not no_print:
+            os.startfile(rf'{constants.OUTPUTS_DIR}\door_label.xlsx', 'print')
 
-    if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
-        p_file = open(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
-        p_name = p_file.read()
-        p_file.close()
-    else:
-        p_name = ''
-
-    with open(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv', newline='') as basic_info:
-        basic_info_data = csv.reader(basic_info, delimiter=',', quotechar='"')
-        basic_data = list(basic_info_data)
-
-    namecard_font = Font(size=36, bold=True, name='Arial')
-
-    nhi_font = Font(size=28, bold=True, name='Copperplate Gothic Light')
-
-    door_sheet['B6'] = basic_data[1][1] + ' ' + basic_data[1][3] + ' (' + p_name + ') ' + basic_data[1][2]
-    door_sheet['B6'].font = namecard_font
-    door_sheet['B6'].alignment = Alignment(horizontal='center', vertical='center',
-                                           wrap_text=True)
-    door_sheet.merge_cells(start_row=6, start_column=2, end_row=18, end_column=10)
-    door_sheet['C24'] = basic_data[1][2]
-    door_sheet['C24'].font = nhi_font
-    door_sheet['C27'] = basic_data[1][1]
-    door_sheet['C27'].font = nhi_font
-    door_sheet['C29'] = basic_data[1][3]
-    door_sheet['C29'].font = nhi_font
-    door_sheet['C35'] = 'NHI No:'
-    door_sheet['C35'].font = nhi_font
-    door_sheet['F35'] = basic_data[1][10]
-    door_sheet['F35'].font = nhi_font
-
-    # # # Inserting Resident Photo
-    for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):
-        if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
-            photoname = file
-            profile = Image(rf'{constants.DOWNLOADS_DIR}\{photoname}')
-            profile.anchor = 'H21'
-            profile.height = 212
-            profile.width = 192
-            door_sheet.add_image(profile)
-            sheet_book.save(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
-
-    styles.full_border(door_sheet, 'B6:J18', border=['double'])
-    styles.full_border(door_sheet, 'B21:J38', border=['double'])
-
-    door_sheet.print_area = 'A5:K39'
-    styles.print_settings(door_sheet, landscape=False)
-    sheet_book.save(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
-    sheet_book.close()
-
-    if not no_print:
-        os.startfile(rf'{constants.OUTPUTS_DIR}\door_label.xlsx', 'print')
-
-    if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
-        os.remove(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
-
-    os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
-    os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
-    for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):
-        if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
-            photoname = file
-            os.remove(rf'{constants.DOWNLOADS_DIR}\{photoname}')
+        info_files_remover()
+    except PermissionError:
+        info_files_remover()
 
 
 def create_label_list():
@@ -917,3 +902,15 @@ def village_birthdays(only_village=False):
 
         os.startfile(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\Villagebirthdays-{date}.xlsx')
         os.remove(rf'{constants.DOWNLOADS_DIR}\birthdayList_MCF.csv')
+
+
+def info_files_remover():
+    """
+
+    :return:
+    """
+    for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):
+        if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
+            os.remove(rf'{constants.DOWNLOADS_DIR}\{file}')
+        if file in ['fs_Con.csv', 'fs_Res.csv', 'p_name.txt']:
+            os.remove(rf'{constants.DOWNLOADS_DIR}\{file}')

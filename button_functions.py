@@ -171,8 +171,10 @@ def printing_files():
     nhi_entry.grid(row=1, column=1, columnspan=3, padx=50, pady=5)
 
     tkinter.Button(nhi_window, text="Print Resident Front Sheet",
-                   command=lambda: front_sheet(nhi_entry)).grid(column=2, pady=5)
+                   command=lambda: front_sheet(nhi_entry)).grid(column=2)
     tkinter.Button(nhi_window, text="Print RLV Front Sheet",
+                   command=lambda: front_sheet(nhi_entry, village=True)).grid(column=2, pady=5)
+    tkinter.Button(nhi_window, text="Print Nurses Front Sheet",
                    command=lambda: front_sheet(nhi_entry, village=True)).grid(column=2)
     tkinter.Button(nhi_window, text="Print Door Label",
                    command=lambda: door_label(nhi_entry)).grid(column=2, pady=5)
@@ -182,7 +184,7 @@ def printing_files():
                    command=lambda: nhi_window.destroy()).grid(column=2, pady=10)
 
 
-def front_sheet(entry, village=False):
+def front_sheet(entry, village=False, nurses=False):
     """
     Opens a selenium browser with ecase_login, and downloads eCase reports,
     resident_Image, and preferred_Name. Uses this to create a formatted
@@ -190,6 +192,7 @@ def front_sheet(entry, village=False):
     Resident Contacts.
     :param entry: tkinter Entry object
     :param village: Bool to print only 2 copies of the front sheet, if true
+    :param nurses:
     :return:
     """
     nhi = entry.get()
@@ -208,7 +211,7 @@ def front_sheet(entry, village=False):
         ecase_downloader.preferred_name_and_image(ecase_driver, nhi)
         ecase_downloader.resident_contacts(ecase_driver, nhi)
         ecase_driver.quit()
-        printing_documents.create_front_sheet(village=village)
+        printing_documents.create_front_sheet(village=village, nurses=nurses)
 
 
 def door_label(entry):
