@@ -175,7 +175,7 @@ def printing_files():
     tkinter.Button(nhi_window, text="Print RLV Front Sheet",
                    command=lambda: front_sheet(nhi_entry, village=True)).grid(column=2, pady=5)
     tkinter.Button(nhi_window, text="Print Nurses Front Sheet",
-                   command=lambda: front_sheet(nhi_entry, village=True)).grid(column=2)
+                   command=lambda: front_sheet(nhi_entry, nurses=True)).grid(column=2)
     tkinter.Button(nhi_window, text="Print Door Label",
                    command=lambda: door_label(nhi_entry)).grid(column=2, pady=5)
     tkinter.Button(nhi_window, text="Create Labels List",

@@ -354,6 +354,5 @@ def files_remover(prefix):
     """
     files = [file for file in os.listdir(constants.DOWNLOADS_DIR)
              if file.startswith(f'{prefix}')]
-
     for file in files:
         os.remove(rf'{constants.DOWNLOADS_DIR}\{file}')

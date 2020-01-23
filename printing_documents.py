@@ -482,27 +482,31 @@ def create_front_sheet(village=False, no_print=False, nurses=False):
                         front_sheet['I11'] = 'No Number Present'
     try:
         #  Printing out Frontsheet without monthly accounts fields
+        # For Everyone
         front_sheet.print_area = 'B1:I48'
         sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
         if not no_print:
             os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
+            # Second info copy just for village nurses
             if nurses:
                 os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
 
         #  Printing out Frontsheet with monthly accounts fields
+        # For Admissions and Village manager
         front_sheet.print_area = 'B1:I60'
         sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
         if not no_print:
             if not nurses:
                 os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
 
-        sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
-        sheet_book.close()
-
+        # Just for admissions
         if not no_print:
-            if not village:
+            if not village and not nurses:
                 # print an extra accounts page if in the MCF
                 os.startfile(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx', 'print')
+
+        sheet_book.save(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx')
+        sheet_book.close()
 
         info_files_remover()
 
@@ -598,141 +602,135 @@ def create_label_list():
         document to be printed from the bypass tray with the sticky labels.
         For Admissions officer and receptionist. 
     """
-
     try:
-        sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx')
-    except FileNotFoundError:
-        sheet_book = Workbook()
+        try:
+            sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx')
+        except FileNotFoundError:
+            sheet_book = Workbook()
+            sheet_book.save(rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx')
+
+        label_sheet = sheet_book.active
+        doctors = ['Mascher', 'Jun', 'Mulgan', 'Hulley']
+
+        styles.print_settings(label_sheet, widths=[14.714, 8.88571, 8.88571,
+                                                   13.286, 11, 14.714, 8.88571,
+                                                   8.88571, 13.286], landscape=False)
+
+        respite = False
+
+        if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
+            p_file = open(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
+            p_name = p_file.read()
+            p_file.close()
+        else:
+            p_name = ''
+
+        with open(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv', newline='') as basic_info:
+            basic_info_data = csv.reader(basic_info, delimiter=',', quotechar='"')
+            basic_data = list(basic_info_data)
+
+            if not any(substring in basic_data[1][9] for substring in doctors):
+                respite = True
+
+        last_name = basic_data[1][2]
+
+        if p_name == '':
+            fore_names = basic_data[1][1] + ' ' + basic_data[1][3]
+        else:
+            fore_names = basic_data[1][1] + ' ' + basic_data[1][3] + f' ({p_name})'
+
+        date_of_birth = (f'{basic_data[1][4][8:10]}/'
+                         f'{basic_data[1][4][5:7]}/'
+                         f'{basic_data[1][4][0:4]}')
+        nhi = basic_data[1][10]
+        gp = 'GP: ' + basic_data[1][9]
+        sav = 'St Andrew\'s Village'
+        room = basic_data[1][0]
+
+        if respite:
+            # #    Doctors numbers.  Drs dont want them on the labels anymore.
+            # #         Except for respite.
+            with open(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv', newline='') as contact_info:
+                contact_info_data = csv.reader(contact_info, delimiter=',', quotechar='"')
+                contact_data = list(contact_info_data)
+                for row in contact_data[1:len(contact_data)]:
+                    if row[9] == 'Medical Practitioner':
+                        gp = 'GP: ' + row[0]
+                        if row[7] != '':
+                            gp = gp + ' ' + row[7]
+
+                        elif row[6] != '':
+                            gp = gp + ' ' + row[6]
+
+                        elif row[5] != '':
+                            gp = gp + ' ' + row[5]
+
+                        else:
+                            gp = gp + ' ' + 'No Number Present'
+
+        surname_font = Font(name='Arial', size=11, bold=True)
+        forename_font = Font(name='Arial', size=11)
+        med_norm_font = Font(name='Arial', size=10)
+        small_bold_font = Font(name='Arial', size=10, bold=True)
+        room_font = Font(name='Arial', size=7)
+
+        left_list = ['', last_name, date_of_birth, gp, sav]
+        right_list = ['', fore_names, nhi, '', room]
+
+        for i in range(40):
+            label_sheet.row_dimensions[i].height = float(21.25)
+
+        for label in range(8):
+            for label_row in range(1, 5):
+                coeff = (label * 5) + label_row
+                label_sheet[f'A{coeff}'] = left_list[label_row]
+                label_sheet[f'F{coeff}'] = left_list[label_row]
+                label_sheet[f'D{coeff}'] = right_list[label_row]
+                label_sheet[f'I{coeff}'] = right_list[label_row]
+
+                if label_row == 1:
+                    label_sheet[f'A{coeff}'].font = surname_font
+                    label_sheet[f'F{coeff}'].font = surname_font
+                    label_sheet[f'D{coeff}'].font = forename_font
+                    label_sheet[f'I{coeff}'].font = forename_font
+                    label_sheet[f'D{coeff}'].alignment = Alignment(horizontal='right')
+                    label_sheet[f'I{coeff}'].alignment = Alignment(horizontal='right')
+
+                if label_row == 2:
+                    label_sheet[f'A{coeff}'].font = med_norm_font
+                    label_sheet[f'F{coeff}'].font = med_norm_font
+                    label_sheet[f'D{coeff}'].font = small_bold_font
+                    label_sheet[f'I{coeff}'].font = small_bold_font
+                    label_sheet[f'D{coeff}'].alignment = Alignment(horizontal='right')
+                    label_sheet[f'I{coeff}'].alignment = Alignment(horizontal='right')
+
+                if label_row == 3:
+                    label_sheet[f'A{coeff}'].font = med_norm_font
+                    label_sheet[f'F{coeff}'].font = med_norm_font
+
+                if label_row == 4:
+                    label_sheet[f'A{coeff}'].font = small_bold_font
+                    label_sheet[f'F{coeff}'].font = small_bold_font
+                    label_sheet[f'D{coeff}'].font = room_font
+                    label_sheet[f'I{coeff}'].font = room_font
+                    label_sheet[f'D{coeff}'].alignment = Alignment(horizontal='right')
+                    label_sheet[f'I{coeff}'].alignment = Alignment(horizontal='right')
+
+        label_sheet.print_area = 'A1:I39'
+        label_sheet.page_margins.top = .6
+        label_sheet.page_margins.right = 0.27
+        label_sheet.page_margins.bottom = .52
+        label_sheet.page_margins.left = .48
+
         sheet_book.save(rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx')
+        sheet_book.close()
 
-    label_sheet = sheet_book.active
-    doctors = ['Mascher', 'Jun', 'Mulgan', 'Hulley']
+        os.startfile(rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx')
 
-    styles.print_settings(label_sheet, widths=[14.714, 8.88571, 8.88571,
-                                               13.286, 11, 14.714, 8.88571,
-                                               8.88571, 13.286], landscape=False)
+        info_files_remover()
 
-    respite = False
-
-    if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
-        p_file = open(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
-        p_name = p_file.read()
-        p_file.close()
-    else:
-        p_name = ''
-
-    with open(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv', newline='') as basic_info:
-        basic_info_data = csv.reader(basic_info, delimiter=',', quotechar='"')
-        basic_data = list(basic_info_data)
-
-        if not any(substring in basic_data[1][9] for substring in doctors):
-            respite = True
-
-    last_name = basic_data[1][2]
-
-    if p_name == '':
-        fore_names = basic_data[1][1] + ' ' + basic_data[1][3]
-    else:
-        fore_names = basic_data[1][1] + ' ' + basic_data[1][3] + f' ({p_name})'
-
-    date_of_birth = (f'{basic_data[1][4][8:10]}/'
-                     f'{basic_data[1][4][5:7]}/'
-                     f'{basic_data[1][4][0:4]}')
-    nhi = basic_data[1][10]
-    gp = 'GP: ' + basic_data[1][9]
-    sav = 'St Andrew\'s Village'
-    room = basic_data[1][0]
-
-    if respite:
-        # #    Doctors numbers.  Drs dont want them on the labels anymore.
-        # #         Except for respite.
-        with open(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv', newline='') as contact_info:
-            contact_info_data = csv.reader(contact_info, delimiter=',', quotechar='"')
-            contact_data = list(contact_info_data)
-            for row in contact_data[1:len(contact_data)]:
-                if row[9] == 'Medical Practitioner':
-                    gp = 'GP: ' + row[0]
-                    if row[7] != '':
-                        gp = gp + ' ' + row[7]
-
-                    elif row[6] != '':
-                        gp = gp + ' ' + row[6]
-
-                    elif row[5] != '':
-                        gp = gp + ' ' + row[5]
-
-                    else:
-                        gp = gp + ' ' + 'No Number Present'
-
-    surname_font = Font(name='Arial', size=11, bold=True)
-    forename_font = Font(name='Arial', size=11)
-    med_norm_font = Font(name='Arial', size=10)
-    small_bold_font = Font(name='Arial', size=10, bold=True)
-    room_font = Font(name='Arial', size=7)
-
-    left_list = ['', last_name, date_of_birth, gp, sav]
-    right_list = ['', fore_names, nhi, '', room]
-
-    for i in range(40):
-        label_sheet.row_dimensions[i].height = float(21.25)
-
-    for label in range(8):
-        for label_row in range(1, 5):
-            coeff = (label * 5) + label_row
-            label_sheet[f'A{coeff}'] = left_list[label_row]
-            label_sheet[f'F{coeff}'] = left_list[label_row]
-            label_sheet[f'D{coeff}'] = right_list[label_row]
-            label_sheet[f'I{coeff}'] = right_list[label_row]
-
-            if label_row == 1:
-                label_sheet[f'A{coeff}'].font = surname_font
-                label_sheet[f'F{coeff}'].font = surname_font
-                label_sheet[f'D{coeff}'].font = forename_font
-                label_sheet[f'I{coeff}'].font = forename_font
-                label_sheet[f'D{coeff}'].alignment = Alignment(horizontal='right')
-                label_sheet[f'I{coeff}'].alignment = Alignment(horizontal='right')
-
-            if label_row == 2:
-                label_sheet[f'A{coeff}'].font = med_norm_font
-                label_sheet[f'F{coeff}'].font = med_norm_font
-                label_sheet[f'D{coeff}'].font = small_bold_font
-                label_sheet[f'I{coeff}'].font = small_bold_font
-                label_sheet[f'D{coeff}'].alignment = Alignment(horizontal='right')
-                label_sheet[f'I{coeff}'].alignment = Alignment(horizontal='right')
-
-            if label_row == 3:
-                label_sheet[f'A{coeff}'].font = med_norm_font
-                label_sheet[f'F{coeff}'].font = med_norm_font
-
-            if label_row == 4:
-                label_sheet[f'A{coeff}'].font = small_bold_font
-                label_sheet[f'F{coeff}'].font = small_bold_font
-                label_sheet[f'D{coeff}'].font = room_font
-                label_sheet[f'I{coeff}'].font = room_font
-                label_sheet[f'D{coeff}'].alignment = Alignment(horizontal='right')
-                label_sheet[f'I{coeff}'].alignment = Alignment(horizontal='right')
-
-    label_sheet.print_area = 'A1:I39'
-    label_sheet.page_margins.top = .6
-    label_sheet.page_margins.right = 0.27
-    label_sheet.page_margins.bottom = .52
-    label_sheet.page_margins.left = .48
-
-    sheet_book.save(rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx')
-    sheet_book.close()
-
-    os.startfile(rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx')
-
-    if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv'):
-        os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv')
-    if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv'):
-        os.remove(rf'{constants.DOWNLOADS_DIR}\fs_Con.csv')
-    if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
-        os.remove(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
-    for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):
-        if re.match(r"^[A-Z]{3}[0-9]{4} Photo\.", file):
-            photoname = file
-            os.remove(rf'{constants.DOWNLOADS_DIR}\{photoname}')
+    except PermissionError:
+        info_files_remover()
 
 
 def village_birthdays(only_village=False):
