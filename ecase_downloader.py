@@ -57,7 +57,7 @@ def ecase_data(driver):
         Navigates to the report screen,
         and downloads all reports with the keyword ‘data’
     """
-    search_reports(driver, 'data')
+    search_reports(driver, 'data_')
     try:
         buttons = driver.find_elements_by_id('generate')
         for button in buttons:

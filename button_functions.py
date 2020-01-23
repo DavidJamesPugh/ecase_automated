@@ -40,8 +40,8 @@ def doctor_allocations():
         ecase_driver = ecase_downloader.ecase_login()
         ecase_downloader.doctor_numbers_download(ecase_driver)
         time.sleep(3)
-        ecase_data_import.doctor_numbers()
         ecase_driver.quit()
+        ecase_data_import.doctor_numbers()
 
 
 def bowel_files():
@@ -82,8 +82,8 @@ def ecase_bowel_report(age: int):
         ecase_downloader.main_bowel_report(ecase_driver, wing, age)
         ecase_data_import.bowel_import(wing)
 
-    ecase_data_import.bowel_report_cleanup()
     ecase_driver.quit()
+    ecase_data_import.bowel_report_cleanup()
 
 
 def ecase_care_plans():
@@ -99,21 +99,20 @@ def ecase_care_plans():
              'HOUSE 5 - Henry Campbell',
              'Stirling', 'Iona', 'Balmoral', 'Braemar']
 
-    care_plans = rf'{constants.OUTPUTS_DIR}\Care Plans\eCaseCareplans.xlsx'
-
-    if file_available(care_plans):
+    if file_available(rf'{constants.OUTPUTS_DIR}\Care Plans\eCaseCareplans.xlsx'):
         ecase_driver = ecase_downloader.ecase_login()
         ecase_data_import.care_plans_setup()
 
         for wing in wings:
+
             try:
                 ecase_downloader.care_plan_audits_download(ecase_driver, wing)
-                ecase_data_import.careplan_import(wing)
+                ecase_data_import.care_plans_import(wing)
             except NoSuchElementException:
                 print(f'{wing} care plans could not be downloaded')
 
-        ecase_data_import.careplans_missing_audits()
         ecase_driver.quit()
+        ecase_data_import.care_plans_missing_audits()
 
 
 def podiatry_list():
@@ -125,8 +124,8 @@ def podiatry_list():
     ecase_driver = ecase_downloader.ecase_login()
     ecase_downloader.care_level_csv(ecase_driver)
     time.sleep(1.5)
-    ecase_data_import.care_level_list()
     ecase_driver.quit()
+    ecase_data_import.care_level_list()
 
 
 def ecase_data_download():
@@ -136,10 +135,7 @@ def ecase_data_download():
     eCaseData.xlsx in J:\Quality Data\Clinical Data.
     eCaseGraphs.xlsx has a collection of pivot tables to analyse this data.
     """
-
-    ecase_data = rf'{constants.MAIN_DATA_DIR}\Clinical Data\eCaseData.xlsx'
-
-    if file_available(ecase_data):
+    if file_available(rf'{constants.MAIN_DATA_DIR}\Clinical Data\eCaseData.xlsx'):
         ecase_driver = ecase_downloader.ecase_login()
         try:
             ecase_downloader.ecase_data(ecase_driver)
@@ -195,18 +191,9 @@ def front_sheet(entry, village=False, nurses=False):
     :param nurses:
     :return:
     """
-    nhi = entry.get()
-    if re.match("^[A-Za-z]{3}[0-9]{4}$", nhi):
-        pass
-    else:
-        popup_error("Incorrect NHI format entered, please try again")
+    nhi = nhi_format_check(entry)
 
-    # ##Error checking for if the file is open already.
-    # ##Calls the function file_available to save space, rather than
-    # ##try and except blocks.
-    front_sheet_file = rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx'
-
-    if file_available(front_sheet_file):
+    if file_available(rf'{constants.OUTPUTS_DIR}\front_sheet.xlsx'):
         ecase_driver = ecase_downloader.ecase_login()
         ecase_downloader.preferred_name_and_image(ecase_driver, nhi)
         ecase_downloader.resident_contacts(ecase_driver, nhi)
@@ -222,27 +209,12 @@ def door_label(entry):
     then uses create_Door_Label to create a formatted excel
     file with the resident’s name and photo to place on their door
     """
+    nhi = nhi_format_check(entry)
 
-    nhi = entry.get()
-    if re.match("^[A-Za-z]{3}[0-9]{4}$", nhi):
-        pass
-    else:
-        popup_error("Incorrect NHI format entered, please try again")
-
-    door_label_file = rf'{constants.OUTPUTS_DIR}\door_label.xlsx'
-
-    if file_available(door_label_file):
+    if file_available(rf'{constants.OUTPUTS_DIR}\door_label.xlsx'):
         ecase_driver = ecase_downloader.ecase_login()
         ecase_downloader.preferred_name_and_image(ecase_driver, nhi)
         ecase_downloader.resident_contacts(ecase_driver, nhi)
-
-        while True:
-            if not os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv'):
-                pass
-            else:
-                break
-
-        time.sleep(2)
         ecase_driver.quit()
         printing_documents.create_door_label()
 
@@ -254,28 +226,14 @@ def label_list(entry):
     Gets the preferred_Name, and then create_Label_List is
     called to generate a formatted excel file to print sticky labels
     """
+    nhi = nhi_format_check(entry)
 
-    nhi = entry.get()
-    if re.match("^[A-Za-z]{3}[0-9]{4}$", nhi):
-        pass
-    else:
-        popup_error("Incorrect NHI format entered, please try again")
-
-    label_sheet_file = rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx'
-
-    if file_available(label_sheet_file):
+    if file_available(rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx'):
         ecase_driver = ecase_downloader.ecase_login()
         ecase_downloader.resident_contacts(ecase_driver, nhi)
-
-        while True:
-            if not os.path.isfile(rf'{constants.DOWNLOADS_DIR}\fs_Res.csv'):
-                time.sleep(1)
-            else:
-                break
-
         ecase_downloader.preferred_name_and_image(ecase_driver, nhi)
-        printing_documents.create_label_list()
         ecase_driver.quit()
+        printing_documents.create_label_list()
 
 
 # #########################################
@@ -321,14 +279,12 @@ def resident_birthday_list(only_village=False):
     and their birthdates
     """
 
-    res_birthdays = rf'{constants.OUTPUTS_DIR}\Resident Birthdays\ResidentBirthdays.xlsx'
-
-    if file_available(res_birthdays):
+    if file_available(rf'{constants.OUTPUTS_DIR}\Resident Birthdays\ResidentBirthdays.xlsx'):
         ecase_driver = ecase_downloader.ecase_login()
         ecase_downloader.ecase_birthdays(ecase_driver)
         time.sleep(4)
-        printing_documents.village_birthdays(only_village=only_village)
         ecase_driver.quit()
+        printing_documents.village_birthdays(only_village=only_village)
 
 
 # #############################################
@@ -341,12 +297,11 @@ def temp_movements():
     appends new temporary movements to G:\eCase\Downloads\eCaseTempMoves.xlsx
     """
 
-    temp_moves = rf'{constants.OUTPUTS_DIR}\eCaseTempMoves.xlsx'
-    if file_available(temp_moves):
+    if file_available(rf'{constants.OUTPUTS_DIR}\eCaseTempMoves.xlsx'):
         ecase_driver = ecase_downloader.ecase_login()
         ecase_downloader.ecase_movements(ecase_driver)
         # waits for the download to finish
-        time.sleep(1.5)
+        time.sleep(3)
         ecase_driver.quit()
         printing_documents.temp_movements_print()
 
@@ -467,3 +422,17 @@ def popup_error(msg: str):
     b1 = tkinter.Button(popup, text="Okay", command=popup.destroy)
     b1.pack(pady=10)
     popup.mainloop()
+
+
+def nhi_format_check(entry):
+    """
+
+    :param entry:
+    :return:
+    """
+    nhi = entry.get()
+    if re.match("^[A-Za-z]{3}[0-9]{4}$", nhi):
+        pass
+    else:
+        popup_error("Incorrect NHI format entered, please try again")
+    return nhi

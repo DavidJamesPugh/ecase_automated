@@ -592,7 +592,7 @@ def care_plans_setup():
     careplans_file.close()
 
 
-def careplan_import(wing):
+def care_plans_import(wing):
     """
     Takes reports generated from ecase_Care_Plans_Audit(driver).
     Will use the file generated from care_Plans_Setup()
@@ -643,7 +643,7 @@ def careplan_import(wing):
     os.remove(rf'{constants.DOWNLOADS_DIR}\cp_Care Plan Audit.csv')
 
 
-def careplans_missing_audits():
+def care_plans_missing_audits():
     r"""
     Opens the excel file made in care_Plans_Setup(), and careplan_Import(wing).
     Then saves a separate excel file for each area,
@@ -766,11 +766,7 @@ def doctor_numbers():
 
     doctors_sheet.save(rf'{constants.OUTPUTS_DIR}\doctor_allocation_numbers.xlsx')
 
-    # copyfile(rf'{constants.DOWNLOADS_DIR}\doctor_numbers.csv',
-    #          rf'{constants.DOWNLOADS_DIR}\sorted_doctor_numbers.csv')
-
     doctors_sheet.close()
     os.remove(rf'{constants.DOWNLOADS_DIR}\doctor_numbers.csv')
     os.remove(rf'{constants.DOWNLOADS_DIR}\fixed_doctor_numbers.csv')
-    # os.startfile(rf'\\{directory}\sorted_doctor_numbers.csv')
     os.startfile(rf'{constants.OUTPUTS_DIR}\doctor_allocation_numbers.xlsx')
