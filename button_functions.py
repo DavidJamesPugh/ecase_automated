@@ -104,7 +104,6 @@ def ecase_care_plans():
         ecase_data_import.care_plans_setup()
 
         for wing in wings:
-
             try:
                 ecase_downloader.care_plan_audits_download(ecase_driver, wing)
                 ecase_data_import.care_plans_import(wing)
@@ -307,7 +306,7 @@ The File should have fields
 - Date Booked""")
 
     except PermissionError:
-        popup_error("""The file is open by someone""")
+        popup_error("The file is being used by someone else")
 
 
 def print_clin_files():
@@ -404,7 +403,7 @@ def popup_error(msg: str):
 def printing_resident_sheets(entry, file):
     """
     Checks if the NHI is valid, then downloads the contacts file from ecase
-    Checks if the NHI exists in ecase, and downloads the preferred name and image
+    Downloads the preferred name and image.
     Then quits the selenium browser.
     :param entry:
     :param file:

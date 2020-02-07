@@ -488,13 +488,8 @@ def create_door_label(no_print=False):
     """
 
     try:
-        try:
-            sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\door_label.xlsx')
-            door_sheet = sheet_book.active
-
-        except (BadZipfile, FileNotFoundError):
-            sheet_book = Workbook()
-            door_sheet = sheet_book.active
+        sheet_book = Workbook()
+        door_sheet = sheet_book.active
 
         if os.path.isfile(rf'{constants.DOWNLOADS_DIR}\p_name.txt'):
             p_file = open(rf'{constants.DOWNLOADS_DIR}\p_name.txt')
@@ -566,13 +561,8 @@ def create_label_list():
         For Admissions officer and receptionist. 
     """
     try:
-        try:
-            sheet_book = load_workbook(rf'{constants.OUTPUTS_DIR}\label_sheet.xlsx')
-            label_sheet = sheet_book.active
-
-        except (BadZipfile, FileNotFoundError):
-            sheet_book = Workbook()
-            label_sheet = sheet_book.active
+        sheet_book = Workbook()
+        label_sheet = sheet_book.active
 
         doctors = ['Mascher', 'Jun', 'Mulgan', 'Hulley']
 

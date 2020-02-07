@@ -173,26 +173,10 @@ class TestingConstants(unittest.TestCase):
             os.path.isdir(f'{constants.STAFF_DIR}'))
 
     def test_username(self):
-        self.assertEqual(f'{constants.ECASE_USERNAME}', 'dpugh')
+        self.assertEqual(f'{constants.ECASE_USERNAME}', 'datatec')
 
     def test_password(self):
-        self.assertEqual(f'{constants.ECASE_PASSWORD}', 'sav2018')
-
-
-class TestingEcase(unittest.TestCase):
-    def setUp(self):
-        """
-        Connecting to google.com
-        """
-        self.driver = webdriver.Chrome()
-        self.driver.get('https://sn.healthmetrics.co.nz/main.php?sx=0&')
-        user_name = self.driver.find_element_by_id('mod_login_username')
-        user_password = self.driver.find_element_by_id('mod_login_password')
-        user_name.clear()
-        user_name.send_keys(f'{constants.ECASE_USERNAME}')
-        user_password.clear()
-        user_password.send_keys(f'{constants.ECASE_PASSWORD}')
-        self.driver.find_element_by_name('loginButton').click()
+        self.assertEqual(f'{constants.ECASE_PASSWORD}', 'sav2019')
 
 
 class TestingEcaseReportsAvailable(unittest.TestCase):

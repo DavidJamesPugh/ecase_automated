@@ -10,6 +10,6 @@ DOWNLOADS_DIR = r'\\SAV-FP01\data$\Shared data\datamain\eCase\eCase Automation\D
 OUTPUTS_DIR = r'\\SAV-FP01\data$\Shared data\datamain\eCase\eCase Automation\Resident Files'
 STAFF_DIR = r'\\SAV-FP01\data$\Shared Data\Care Manager\Quality Data\Data Technician\StaffDbases'
 
-ECASE_USERNAME = 'dpugh'
-ECASE_PASSWORD = 'sav2018'
+ECASE_USERNAME = 'datatec'
+ECASE_PASSWORD = 'sav2019'
 ECASE_URL = 'https://sn.healthmetrics.co.nz/main.php'
