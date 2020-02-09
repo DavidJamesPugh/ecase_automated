@@ -362,7 +362,7 @@ def create_front_sheet(village=False, no_print=False, nurses=False):
 
         except IndexError:
             info_files_remover()
-            return button_functions.popup_error("NHI is incorrect, please check you've entered it correctly "
+            return button_functions.popup_error("9002: NHI is incorrect, please check you've entered it correctly "
                                                 "and the resident is set up correctly with that NHI")
 
     for file in os.listdir(rf'{constants.DOWNLOADS_DIR}'):

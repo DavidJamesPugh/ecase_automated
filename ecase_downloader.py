@@ -190,7 +190,7 @@ def nhi_check(driver, nhi):
     except NoSuchElementException:
         driver.quit()
         files_remover('fs_')
-        return button_functions.popup_error("NHI is incorrect, please check "
+        return button_functions.popup_error("9001: NHI is incorrect, please check "
                                             "you've entered it correctly "
                                             "and the resident is set up correctly")
 
