@@ -19,7 +19,7 @@ plotly==4.4.1
 pyrsistent==0.15.7
 python-dateutil==2.8.1
 pytz==2019.3
-pywin32==227
+pywin32==301
 requests==2.22.0
 retrying==1.3.3
 selenium==3.141.0
